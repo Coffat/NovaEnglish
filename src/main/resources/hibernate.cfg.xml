@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- JDBC Database connection settings -->
+        <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/LanguageCenterDB</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password">123456</property>
+
+        <!-- Use built-in connection pool for testing/simple setups -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- SQL Dialect & execution logging -->
+        <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="show_sql">true</property>
+        <property name="format_sql">true</property>
+
+        <!-- Generate schema from entities -->
+        <property name="hbm2ddl.auto">update</property>
+
+        <!-- Map Entity Classes -->
+        <mapping class="com.languagecenter.entity.UserAccount"/>
+        <mapping class="com.languagecenter.entity.Student"/>
+        <mapping class="com.languagecenter.entity.Teacher"/>
+        <mapping class="com.languagecenter.entity.Course"/>
+        <mapping class="com.languagecenter.entity.CourseClass"/>
+        <mapping class="com.languagecenter.entity.Attendance"/>
+        <mapping class="com.languagecenter.entity.Payment"/>
+        <mapping class="com.languagecenter.entity.Schedule"/>
+        <mapping class="com.languagecenter.entity.Enrollment"/>
+    </session-factory>
+</hibernate-configuration>
