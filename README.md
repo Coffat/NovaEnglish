@@ -1,14 +1,14 @@
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=250&section=header&text=NOVA%20ENGLISH&fontSize=70&animation=fadeIn&fontAlignY=35&desc=System%20Management%20Application&descAlignY=55&descSize=20" width="100%" />
 
-  # 🌟 Language Center Management System 🌟
-  
-  <p align="center">
+# 🌟 Language Center Management System 🌟
+
+<p align="center">
     <b>A modern, robust, and elegant desktop application tailored for English centers.</b><br>
     <i>Brings your management workflow to the next level with a stunning UI and powerful backend.</i>
   </p>
 
-  <p align="center">
+<p align="center">
     <a href="https://java.com/"><img src="https://img.shields.io/badge/Java-21_LTS-ED8B00?style=for-the-badge&logo=java&logoColor=white" alt="Java 21" /></a>
     <a href="https://hibernate.org/"><img src="https://img.shields.io/badge/Hibernate-6.4-59666C?style=for-the-badge&logo=hibernate&logoColor=white" alt="Hibernate" /></a>
     <a href="https://maven.apache.org/"><img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven" /></a>
@@ -21,7 +21,7 @@
 
 ## ✨ Key Features
 
-Our app is meticulously crafted to ensure a smooth, delightful user experience. 
+Our app is meticulously crafted to ensure a smooth, delightful user experience.
 
 <table>
   <tr>
@@ -57,6 +57,7 @@ Our app is meticulously crafted to ensure a smooth, delightful user experience.
 Follow these aesthetic steps to launch the system locally.
 
 ### 1️⃣ Prerequisites
+
 > Make sure your machine meets these requirements
 
 - **Java JDK 21+** ☕
@@ -64,26 +65,32 @@ Follow these aesthetic steps to launch the system locally.
 - **MySQL Server 8.x** 🐬
 
 ### 2️⃣ Clone the Repository
+
 ```bash
 git clone https://github.com/Coffat/heThongTiengAnh.git
 cd heThongTiengAnh
 ```
 
 ### 3️⃣ Setup the Database
-Create a new MySQL database and establish the schema. 
+
+Create a new MySQL database and establish the schema.
 *Note: Hibernate uses `update` mode, so tables will be auto-generated based on our JPA entities if they do not exist!*
+
 ```sql
 CREATE DATABASE language_centerdb;
 ```
 
 Update your connection credentials in `src/main/resources/hibernate.cfg.xml`:
+
 ```xml
 <property name="hibernate.connection.username">your_mysql_username</property>
 <property name="hibernate.connection.password">your_mysql_password</property>
 ```
 
 ### 4️⃣ Build & Run 🔥
+
 Using Maven to resolve dependencies, compile the project and boot up the magic:
+
 ```bash
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
@@ -102,10 +109,11 @@ mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
 <details open>
   <summary><b>View Module Breakdowns</b></summary>
   <br/>
-  
-  - **Frontend / UI**: `Java Swing` augmented with `FlatLaf` for macOS/Windows native-like soft UI. Utilizes `MigLayout` for complex responsive grids.
-  - **Backend Layer**: Java 21 LTS standard backend logic, fully event-driven UI listeners.
-  - **Data Integration**: DAO Implementation pattern utilizing `Hibernate 6` `Session` operations. Entity mapping explicitly binds models to MySQL rows.
+
+- **Frontend / UI**: `Java Swing` augmented with `FlatLaf` for macOS/Windows native-like soft UI. Utilizes `MigLayout` for complex responsive grids.
+- **Backend Layer**: Java 21 LTS standard backend logic, fully event-driven UI listeners.
+- **Data Integration**: DAO Implementation pattern utilizing `Hibernate 6` `Session` operations. Entity mapping explicitly binds models to MySQL rows.
+
 </details>
 
 ---
@@ -124,7 +132,7 @@ Our intuitive UI emphasizes layout hierarchy and distinct micro-interactions. Fr
 
 ## 🤝 Contributing
 
-We welcome contributions to make **Nova English** even better! 
+We welcome contributions to make **Nova English** even better!
 
 1. `Fork` the repository
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -137,5 +145,5 @@ We welcome contributions to make **Nova English** even better!
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=100&section=footer" width="100%" />
   <br/>
-  <p>Crafted with ❤️ by Vũ Toàn Thắng</p>
+  <p>Crafted with ❤️ by Vũ Toàn Thắng & Đặng Ngọc Tài</p>
 </div>
