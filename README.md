@@ -26,11 +26,11 @@ Our app is meticulously crafted to ensure a smooth, delightful user experience.
 <table>
   <tr>
     <td align="center" width="25%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Man%20Student.png" alt="Student" width="50" />
+      <img src="https://img.icons8.com/fluency/96/student-male.png" alt="Student" width="50" />
       <br /><b>Student Management</b>
     </td>
     <td align="center" width="25%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Woman%20Teacher.png" alt="Teacher" width="50" />
+      <img src="https://img.icons8.com/fluency/96/teacher.png" alt="Teacher" width="50" />
       <br /><b>Teacher Profiles</b>
     </td>
     <td align="center" width="25%">
