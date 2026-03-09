@@ -19,4 +19,19 @@ public class UserAccountDAO {
             return null;
         }
     }
+
+    public void updateUserAccount(UserAccount user) {
+        org.hibernate.Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.merge(user);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

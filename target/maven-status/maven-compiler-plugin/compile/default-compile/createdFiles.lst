@@ -57,6 +57,7 @@ com/languagecenter/TestHibernate.class
 com/languagecenter/ui/panels/PaymentPanel$StatusBadgeRenderer.class
 com/languagecenter/ui/panels/StudentDetailSidePanel.class
 com/languagecenter/ui/panels/CourseClassPanel.class
+com/languagecenter/ui/dialogs/ChangePasswordDialog.class
 com/languagecenter/ui/panels/CoursePanel$3.class
 com/languagecenter/ui/panels/PaymentPanel$4.class
 com/languagecenter/ui/dialogs/StudentDialog.class

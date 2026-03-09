@@ -132,7 +132,7 @@ public class LoginForm extends JFrame {
         UserAccount user = userAccountDAO.verifyCredentials(username, password);
         if (user != null) {
             this.dispose();
-            MainFrame mainFrame = new MainFrame();
+            MainFrame mainFrame = new MainFrame(user);
             mainFrame.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(this, "Invalid credentials. Please try again.", "Error",

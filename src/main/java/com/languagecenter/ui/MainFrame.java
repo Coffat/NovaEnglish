@@ -28,8 +28,12 @@ import com.languagecenter.ui.panels.SchedulePanel;
 import com.languagecenter.ui.panels.ScheduleDetailSidePanel;
 import com.languagecenter.ui.panels.PaymentPanel;
 import com.languagecenter.ui.panels.PaymentDetailSidePanel;
+import com.languagecenter.entity.UserAccount;
+import com.languagecenter.ui.dialogs.ChangePasswordDialog;
 
 public class MainFrame extends JFrame {
+
+    private UserAccount loggedInUser;
 
     private final Color primaryAccent = new Color(0x6366F1); // Indigo
     private final Color sidebarBg = new Color(0xF1F5F9); // Light Gray Sidebar
@@ -63,7 +67,8 @@ public class MainFrame extends JFrame {
     private Timer sidePanelTimer;
     private final int MAX_SIDE_WIDTH = 380;
 
-    public MainFrame() {
+    public MainFrame(UserAccount user) {
+        this.loggedInUser = user;
         setTitle("Dashboard - Language Center");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1350, 850);
@@ -227,7 +232,7 @@ public class MainFrame extends JFrame {
 
         JPanel welcomePanel = new JPanel(new MigLayout("insets 0, gap 0", "[]", "[][]"));
         welcomePanel.setOpaque(false);
-        JLabel lblWelcome = new JLabel("Hi Vũ Toàn Thắng");
+        JLabel lblWelcome = new JLabel("Hi " + (loggedInUser != null ? loggedInUser.getUsername() : "Vũ Toàn Thắng"));
         lblWelcome.setFont(new Font("Inter", Font.BOLD, 28));
         lblWelcome.setForeground(new Color(0x1E293B));
 
@@ -276,7 +281,15 @@ public class MainFrame extends JFrame {
         btnAvatar.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
         btnAvatar.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        btnAvatar.addActionListener(e -> {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem changePasswordItem = new JMenuItem("Change Password");
+        JMenuItem logoutItem = new JMenuItem("Logout");
+
+        changePasswordItem.addActionListener(evt -> {
+            new ChangePasswordDialog(this, loggedInUser).setVisible(true);
+        });
+
+        logoutItem.addActionListener(evt -> {
             int confirm = JOptionPane.showConfirmDialog(this,
                     "Are you sure you want to log out?", "Confirm Logout",
                     JOptionPane.YES_NO_OPTION);
@@ -284,6 +297,14 @@ public class MainFrame extends JFrame {
                 this.dispose();
                 new LoginForm().setVisible(true);
             }
+        });
+
+        popupMenu.add(changePasswordItem);
+        popupMenu.addSeparator();
+        popupMenu.add(logoutItem);
+
+        btnAvatar.addActionListener(e -> {
+            popupMenu.show(btnAvatar, 0, btnAvatar.getHeight());
         });
 
         controlsPanel.add(searchField, "w 250!");
