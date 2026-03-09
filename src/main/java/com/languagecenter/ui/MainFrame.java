@@ -264,19 +264,31 @@ public class MainFrame extends JFrame {
         btnNotif.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_BORDERLESS);
         btnNotif.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        JLabel lblAvatar = new JLabel();
+        JButton btnAvatar = new JButton();
         try {
             URL url = getClass().getResource("/icons/user.svg");
             if (url != null)
-                lblAvatar.setIcon(new FlatSVGIcon("icons/user.svg", 42, 42));
+                btnAvatar.setIcon(new FlatSVGIcon("icons/user.svg", 42, 42));
         } catch (Exception e) {
-            lblAvatar.setText("(U)");
+            btnAvatar.setText("(U)");
         }
-        lblAvatar.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+        btnAvatar.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_BORDERLESS);
+        btnAvatar.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+        btnAvatar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btnAvatar.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Are you sure you want to log out?", "Confirm Logout",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                this.dispose();
+                new LoginForm().setVisible(true);
+            }
+        });
 
         controlsPanel.add(searchField, "w 250!");
         controlsPanel.add(btnNotif);
-        controlsPanel.add(lblAvatar);
+        controlsPanel.add(btnAvatar);
 
         centerHeaderPanel.add(welcomePanel, BorderLayout.WEST);
         centerHeaderPanel.add(controlsPanel, BorderLayout.EAST);

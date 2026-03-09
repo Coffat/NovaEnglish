@@ -3,6 +3,7 @@ com/languagecenter/ui/panels/TeacherPanel$1.class
 com/languagecenter/ui/panels/SchedulePanel$ActionRenderer.class
 com/languagecenter/entity/Attendance.class
 com/languagecenter/dao/AttendanceDAO.class
+com/languagecenter/ui/LoginForm$1.class
 com/languagecenter/ui/panels/TeacherPanel$4.class
 com/languagecenter/ui/panels/TeacherDetailSidePanel.class
 com/languagecenter/ui/panels/CoursePanel.class
