@@ -20,7 +20,7 @@ import java.util.List;
 public class CoursePanel extends JPanel {
 
     private TableRowSorter<DefaultTableModel> sorter;
-    private CourseDAO courseDAO = new CourseDAO();
+    private CourseDAO courseDAO = CourseDAO.getInstance();
     private DefaultTableModel model;
 
     private com.languagecenter.ui.MainFrame mainFrame;
@@ -178,6 +178,13 @@ public class CoursePanel extends JPanel {
 
         tableContainer.add(actionPanel, BorderLayout.SOUTH);
         add(tableContainer, BorderLayout.CENTER);
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadData();
+            }
+        });
     }
 
     private void loadData() {

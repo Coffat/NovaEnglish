@@ -9,6 +9,18 @@ import java.util.ArrayList;
 
 public class PaymentDAO {
 
+    private static PaymentDAO instance;
+
+    private PaymentDAO() {}
+
+    public static PaymentDAO getInstance() {
+        if (instance == null) {
+            instance = new PaymentDAO();
+        }
+        return instance;
+    }
+
+
     public List<Payment> getAllPayments() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Payment", Payment.class).list();

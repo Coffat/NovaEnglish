@@ -9,6 +9,18 @@ import java.util.ArrayList;
 
 public class ScheduleDAO {
 
+    private static ScheduleDAO instance;
+
+    private ScheduleDAO() {}
+
+    public static ScheduleDAO getInstance() {
+        if (instance == null) {
+            instance = new ScheduleDAO();
+        }
+        return instance;
+    }
+
+
     public List<Schedule> getAllSchedules() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Schedule", Schedule.class).list();

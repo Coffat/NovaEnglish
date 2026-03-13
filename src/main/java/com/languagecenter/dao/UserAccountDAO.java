@@ -7,6 +7,18 @@ import org.hibernate.query.Query;
 
 public class UserAccountDAO {
 
+    private static UserAccountDAO instance;
+
+    private UserAccountDAO() {}
+
+    public static UserAccountDAO getInstance() {
+        if (instance == null) {
+            instance = new UserAccountDAO();
+        }
+        return instance;
+    }
+
+
     public UserAccount verifyCredentials(String username, String password) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<UserAccount> query = session.createQuery(

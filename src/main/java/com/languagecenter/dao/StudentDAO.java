@@ -9,6 +9,18 @@ import java.util.ArrayList;
 
 public class StudentDAO {
 
+    private static StudentDAO instance;
+
+    private StudentDAO() {}
+
+    public static StudentDAO getInstance() {
+        if (instance == null) {
+            instance = new StudentDAO();
+        }
+        return instance;
+    }
+
+
     public List<Student> getAllStudents() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Student", Student.class).list();

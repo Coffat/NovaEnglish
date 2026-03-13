@@ -20,7 +20,7 @@ import java.util.List;
 public class CourseClassPanel extends JPanel {
 
     private TableRowSorter<DefaultTableModel> sorter;
-    private CourseClassDAO classDAO = new CourseClassDAO();
+    private CourseClassDAO classDAO = CourseClassDAO.getInstance();
     private DefaultTableModel model;
 
     private com.languagecenter.ui.MainFrame mainFrame;
@@ -99,7 +99,25 @@ public class CourseClassPanel extends JPanel {
                         Rectangle cellRect = table.getCellRect(row, column, false);
                         int clickX = e.getX() - cellRect.x;
 
-                        if (clickX < cellRect.width / 2) {
+                        if (clickX < cellRect.width / 4) {
+                            // Students / Enrollments
+                            CourseClass courseClass = classDAO.getClassById(classId);
+                            if (courseClass != null) {
+                                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(CourseClassPanel.this);
+                                com.languagecenter.ui.dialogs.ClassEnrollmentsDialog dialog = new com.languagecenter.ui.dialogs.ClassEnrollmentsDialog(parentFrame, courseClass);
+                                dialog.setVisible(true);
+                            }
+                        } else if (clickX < 2 * cellRect.width / 4) {
+                            // Attendance
+                            CourseClass courseClass = classDAO.getClassById(classId);
+                            if (courseClass != null) {
+                                JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(CourseClassPanel.this);
+                                com.languagecenter.ui.dialogs.TakeClassAttendanceDialog dialog = new com.languagecenter.ui.dialogs.TakeClassAttendanceDialog(parentFrame, courseClass, () -> {
+                                    // Nothing specific to refresh in CourseClassPanel for attendance, maybe just a success message
+                                });
+                                dialog.setVisible(true);
+                            }
+                        } else if (clickX < 3 * cellRect.width / 4) {
                             // Edit
                             CourseClass courseClass = classDAO.getClassById(classId);
                             if (courseClass != null) {
@@ -179,6 +197,13 @@ public class CourseClassPanel extends JPanel {
 
         tableContainer.add(actionPanel, BorderLayout.SOUTH);
         add(tableContainer, BorderLayout.CENTER);
+
+        addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                loadData();
+            }
+        });
     }
 
     private void loadData() {
@@ -267,6 +292,8 @@ public class CourseClassPanel extends JPanel {
     }
 
     class ActionRenderer extends JPanel implements TableCellRenderer {
+        private JLabel lblStudents;
+        private JLabel lblAttendance;
         private JLabel lblEdit;
         private JLabel lblDelete;
 
@@ -275,13 +302,23 @@ public class CourseClassPanel extends JPanel {
             setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
             try {
+                lblStudents = new JLabel(new FlatSVGIcon("icons/students.svg", 16, 16));
+                lblAttendance = new JLabel(new FlatSVGIcon("icons/attendance.svg", 16, 16));
                 lblEdit = new JLabel(new FlatSVGIcon("icons/edit.svg", 16, 16));
                 lblDelete = new JLabel(new FlatSVGIcon("icons/delete.svg", 16, 16));
             } catch (Exception e) {
+                lblStudents = new JLabel("S");
+                lblAttendance = new JLabel("A");
                 lblEdit = new JLabel("E");
                 lblDelete = new JLabel("D");
             }
+            lblStudents.setToolTipText("View Enrollments");
+            lblAttendance.setToolTipText("Take Attendance");
+            lblEdit.setToolTipText("Edit Class");
+            lblDelete.setToolTipText("Delete Class");
 
+            add(lblStudents);
+            add(lblAttendance);
             add(lblEdit);
             add(lblDelete);
         }

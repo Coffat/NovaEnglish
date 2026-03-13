@@ -20,7 +20,7 @@ public class ChangePasswordDialog extends JDialog {
     public ChangePasswordDialog(JFrame parent, UserAccount userAccount) {
         super(parent, "Change Password", true);
         this.userAccount = userAccount;
-        this.userAccountDAO = new UserAccountDAO();
+        this.userAccountDAO = UserAccountDAO.getInstance();
 
         initComponents();
         setSize(400, 350);

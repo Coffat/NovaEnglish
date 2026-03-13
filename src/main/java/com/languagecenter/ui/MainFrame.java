@@ -11,22 +11,11 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import com.languagecenter.ui.panels.PlaceholderPanel;
-import com.languagecenter.ui.panels.StudentPanel;
 import com.languagecenter.ui.panels.StudentDetailSidePanel;
-import com.languagecenter.ui.panels.TeacherPanel;
 import com.languagecenter.ui.panels.TeacherDetailSidePanel;
-import com.languagecenter.ui.panels.CoursePanel;
 import com.languagecenter.ui.panels.CourseDetailSidePanel;
-import com.languagecenter.ui.panels.CourseClassPanel;
 import com.languagecenter.ui.panels.CourseClassDetailSidePanel;
-import com.languagecenter.ui.panels.AttendancePanel;
-import com.languagecenter.ui.panels.AttendanceDetailSidePanel;
-import com.languagecenter.ui.panels.EnrollmentPanel;
-import com.languagecenter.ui.panels.EnrollmentDetailSidePanel;
-import com.languagecenter.ui.panels.SchedulePanel;
 import com.languagecenter.ui.panels.ScheduleDetailSidePanel;
-import com.languagecenter.ui.panels.PaymentPanel;
 import com.languagecenter.ui.panels.PaymentDetailSidePanel;
 import com.languagecenter.entity.UserAccount;
 import com.languagecenter.ui.dialogs.ChangePasswordDialog;
@@ -38,7 +27,6 @@ public class MainFrame extends JFrame {
     private final Color primaryAccent = new Color(0x6366F1); // Indigo
     private final Color sidebarBg = new Color(0xF1F5F9); // Light Gray Sidebar
     private final Color contentBg = new Color(0xF8FAFC); // Main Light Background
-    private final Color cardBg = new Color(0xFFFFFF); // White Card
 
     private JPanel sidebarPanel;
     private JPanel centerContentPanel;
@@ -46,8 +34,6 @@ public class MainFrame extends JFrame {
     private TeacherDetailSidePanel rightTeacherSidePanel;
     private CourseDetailSidePanel rightCourseSidePanel;
     private CourseClassDetailSidePanel rightClassSidePanel;
-    private AttendanceDetailSidePanel rightAttendanceSidePanel;
-    private EnrollmentDetailSidePanel rightEnrollmentSidePanel;
     private ScheduleDetailSidePanel rightScheduleSidePanel;
     private PaymentDetailSidePanel rightPaymentSidePanel;
     private JPanel rightSideContainer;
@@ -80,48 +66,38 @@ public class MainFrame extends JFrame {
         setLayout(new MigLayout("fill, insets 0, gap 0", "[260!]0[grow]", "[grow]"));
         getContentPane().setBackground(contentBg);
 
-        rightSidePanel = new StudentDetailSidePanel(() -> toggleSidePanel(false));
+        rightSidePanel = (StudentDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Student", () -> toggleSidePanel(false));
         rightSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightSidePanel.setBackground(new Color(0xFFFFFF));
 
-        rightTeacherSidePanel = new TeacherDetailSidePanel(() -> toggleSidePanel(false));
+        rightTeacherSidePanel = (TeacherDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Teacher", () -> toggleSidePanel(false));
         rightTeacherSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightTeacherSidePanel.setBackground(new Color(0xFFFFFF));
 
-        rightCourseSidePanel = new CourseDetailSidePanel(() -> toggleSidePanel(false));
+        rightCourseSidePanel = (CourseDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Course", () -> toggleSidePanel(false));
         rightCourseSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightCourseSidePanel.setBackground(new Color(0xFFFFFF));
 
-        rightClassSidePanel = new CourseClassDetailSidePanel(() -> toggleSidePanel(false));
+        rightClassSidePanel = (CourseClassDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Class", () -> toggleSidePanel(false));
         rightClassSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightClassSidePanel.setBackground(new Color(0xFFFFFF));
 
-        rightAttendanceSidePanel = new AttendanceDetailSidePanel(() -> toggleSidePanel(false));
-        rightAttendanceSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
-        rightAttendanceSidePanel.setBackground(new Color(0xFFFFFF));
-
-        rightEnrollmentSidePanel = new EnrollmentDetailSidePanel(() -> toggleSidePanel(false));
-        rightEnrollmentSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
-        rightEnrollmentSidePanel.setBackground(new Color(0xFFFFFF));
-
-        rightScheduleSidePanel = new ScheduleDetailSidePanel(() -> toggleSidePanel(false));
+        rightScheduleSidePanel = (ScheduleDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Schedule", () -> toggleSidePanel(false));
         rightScheduleSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightScheduleSidePanel.setBackground(new Color(0xFFFFFF));
 
-        rightPaymentSidePanel = new PaymentDetailSidePanel(() -> toggleSidePanel(false));
+        rightPaymentSidePanel = (PaymentDetailSidePanel) com.languagecenter.ui.factory.SidePanelFactory.createSidePanel("Payment", () -> toggleSidePanel(false));
         rightPaymentSidePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         rightPaymentSidePanel.setBackground(new Color(0xFFFFFF));
 
         rightSideCardLayout = new CardLayout();
         rightSideContainer = new JPanel(rightSideCardLayout);
-        rightSideContainer.add(rightSidePanel, "Student");
-        rightSideContainer.add(rightTeacherSidePanel, "Teacher");
-        rightSideContainer.add(rightCourseSidePanel, "Course");
-        rightSideContainer.add(rightClassSidePanel, "Class");
-        rightSideContainer.add(rightAttendanceSidePanel, "Attendance");
-        rightSideContainer.add(rightEnrollmentSidePanel, "Enrollment");
-        rightSideContainer.add(rightScheduleSidePanel, "Schedule");
-        rightSideContainer.add(rightPaymentSidePanel, "Payment");
+        rightSideContainer.add(createScrollable(rightSidePanel), "Student");
+        rightSideContainer.add(createScrollable(rightTeacherSidePanel), "Teacher");
+        rightSideContainer.add(createScrollable(rightCourseSidePanel), "Course");
+        rightSideContainer.add(createScrollable(rightClassSidePanel), "Class");
+        rightSideContainer.add(createScrollable(rightScheduleSidePanel), "Schedule");
+        rightSideContainer.add(createScrollable(rightPaymentSidePanel), "Payment");
         rightSideContainer.setOpaque(false);
 
         buildSidebar();
@@ -149,6 +125,16 @@ public class MainFrame extends JFrame {
         UIManager.put("Component.outlineWidth", 0); // Remove drop shadow standard FlatLaf width for a soft look
     }
 
+    private JScrollPane createScrollable(JPanel panel) {
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        return scrollPane;
+    }
+
     private void buildSidebar() {
         sidebarPanel = new JPanel(new MigLayout("wrap 1, insets 30 20 30 20, gapy 12", "[grow]", "[]30[][grow][]"));
         sidebarPanel.setBackground(sidebarBg);
@@ -172,7 +158,7 @@ public class MainFrame extends JFrame {
 
         String[] navItems = {
                 "Students", "Teachers", "Courses", "Classes",
-                "Enrollments", "Schedules", "Attendance", "Payments", "Reports"
+                "Schedules", "Payments", "Reports"
         };
 
         for (String item : navItems) {
@@ -319,74 +305,23 @@ public class MainFrame extends JFrame {
         cardLayout = new CardLayout();
         cardContainer = new JPanel(cardLayout);
         cardContainer.setOpaque(false);
+        cardContainer.setMinimumSize(new Dimension(0, 0));
 
         for (String item : navButtons.keySet()) {
             cardContainer.add(createSubPanel(item), item);
         }
 
         mainBodyPanel = new JPanel(new MigLayout("fill, insets 0, gap 0", "[grow]0[0!]", "[grow]"));
+        mainBodyPanel.setMinimumSize(new Dimension(0, 0));
         mainBodyPanel.setOpaque(false);
-        mainBodyPanel.add(cardContainer, "grow, push");
+        mainBodyPanel.add(cardContainer, "grow");
         mainBodyPanel.add(rightSideContainer, "grow, pushx, hidemode 3");
 
         centerContentPanel.add(mainBodyPanel, "grow, push");
     }
 
     private JPanel createSubPanel(String title) {
-        JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.setOpaque(false);
-        if (title.equals("Students")) {
-            StudentPanel studentPanel = new StudentPanel(this);
-            if (searchField != null) {
-                studentPanel.bindSearchField(searchField);
-            }
-            wrapper.add(studentPanel, BorderLayout.CENTER);
-        } else if (title.equals("Teachers")) {
-            TeacherPanel teacherPanel = new TeacherPanel(this);
-            if (searchField != null) {
-                teacherPanel.bindSearchField(searchField);
-            }
-            wrapper.add(teacherPanel, BorderLayout.CENTER);
-        } else if (title.equals("Courses")) {
-            CoursePanel coursePanel = new CoursePanel(this);
-            if (searchField != null) {
-                coursePanel.bindSearchField(searchField);
-            }
-            wrapper.add(coursePanel, BorderLayout.CENTER);
-        } else if (title.equals("Classes")) {
-            CourseClassPanel classPanel = new CourseClassPanel(this);
-            if (searchField != null) {
-                classPanel.bindSearchField(searchField);
-            }
-            wrapper.add(classPanel, BorderLayout.CENTER);
-        } else if (title.equals("Attendance")) {
-            AttendancePanel attendancePanel = new AttendancePanel(this);
-            if (searchField != null) {
-                attendancePanel.bindSearchField(searchField);
-            }
-            wrapper.add(attendancePanel, BorderLayout.CENTER);
-        } else if (title.equals("Enrollments")) {
-            EnrollmentPanel enrollmentPanel = new EnrollmentPanel(this);
-            if (searchField != null) {
-                enrollmentPanel.bindSearchField(searchField);
-            }
-            wrapper.add(enrollmentPanel, BorderLayout.CENTER);
-        } else if (title.equals("Schedules")) {
-            SchedulePanel schedulePanel = new SchedulePanel(this);
-            if (searchField != null) {
-                schedulePanel.bindSearchField(searchField);
-            }
-            wrapper.add(schedulePanel, BorderLayout.CENTER);
-        } else if (title.equals("Payments")) {
-            PaymentPanel paymentPanel = new PaymentPanel(this);
-            if (searchField != null) {
-                paymentPanel.bindSearchField(searchField);
-            }
-            wrapper.add(paymentPanel, BorderLayout.CENTER);
-        } else {
-            wrapper.add(new PlaceholderPanel(title), BorderLayout.CENTER);
-        }
-        return wrapper;
+        return com.languagecenter.ui.factory.PanelFactory.createSubPanel(title, this, searchField);
     }
 
     private void switchPanel(String name) {
@@ -470,20 +405,6 @@ public class MainFrame extends JFrame {
             java.util.function.Consumer<com.languagecenter.entity.CourseClass> onSave) {
         rightSideCardLayout.show(rightSideContainer, "Class");
         rightClassSidePanel.setClass(courseClass, onSave);
-        toggleSidePanel(true);
-    }
-
-    public void openAttendanceSidePanel(com.languagecenter.entity.Attendance attendance,
-            java.util.function.Consumer<com.languagecenter.entity.Attendance> onSave) {
-        rightSideCardLayout.show(rightSideContainer, "Attendance");
-        rightAttendanceSidePanel.setAttendance(attendance, onSave);
-        toggleSidePanel(true);
-    }
-
-    public void openEnrollmentSidePanel(com.languagecenter.entity.Enrollment enrollment,
-            java.util.function.Consumer<com.languagecenter.entity.Enrollment> onSave) {
-        rightSideCardLayout.show(rightSideContainer, "Enrollment");
-        rightEnrollmentSidePanel.setEnrollment(enrollment, onSave);
         toggleSidePanel(true);
     }
 

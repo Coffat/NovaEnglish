@@ -34,8 +34,8 @@ public class PaymentDetailSidePanel extends JPanel {
     private JComboBox<String> cbMethod;
     private JComboBox<String> cbStatus;
 
-    private StudentDAO studentDAO = new StudentDAO();
-    private EnrollmentDAO enrollmentDAO = new EnrollmentDAO();
+    private StudentDAO studentDAO = StudentDAO.getInstance();
+    private EnrollmentDAO enrollmentDAO = EnrollmentDAO.getInstance();
 
     public PaymentDetailSidePanel(Runnable onCloseCallback) {
         this.onCloseCallback = onCloseCallback;

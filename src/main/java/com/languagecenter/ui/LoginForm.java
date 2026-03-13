@@ -18,7 +18,7 @@ public class LoginForm extends JFrame {
     private UserAccountDAO userAccountDAO;
 
     public LoginForm() {
-        userAccountDAO = new UserAccountDAO();
+        userAccountDAO = UserAccountDAO.getInstance();
         initComponents();
     }
 

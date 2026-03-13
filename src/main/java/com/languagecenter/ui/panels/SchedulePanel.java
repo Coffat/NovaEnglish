@@ -3,241 +3,286 @@ package com.languagecenter.ui.panels;
 import com.languagecenter.dao.ScheduleDAO;
 import com.languagecenter.entity.Schedule;
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
+import java.time.DayOfWeek;
+import java.time.temporal.TemporalAdjusters;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class SchedulePanel extends JPanel {
 
-    private TableRowSorter<DefaultTableModel> sorter;
-    private ScheduleDAO scheduleDAO = new ScheduleDAO();
-    private DefaultTableModel model;
-
+    private ScheduleDAO scheduleDAO = ScheduleDAO.getInstance();
     private com.languagecenter.ui.MainFrame mainFrame;
+    
+    private LocalDate currentWeekStart;
+    
+    // UI Components
+    private JLabel lblWeekRange;
+    private JPanel calendarGrid;
+    private List<Schedule> allSchedules;
+    
+    // Click outside listener
+    private MouseAdapter closeSidePanelListener;
 
     public SchedulePanel(com.languagecenter.ui.MainFrame mainFrame) {
         this.mainFrame = mainFrame;
+        // Init to current week monday
+        LocalDate today = LocalDate.now();
+        currentWeekStart = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         initUI();
     }
 
     public void bindSearchField(JTextField searchField) {
-        Timer timer = new Timer(300, e -> {
-            String text = searchField.getText();
-            if (text.trim().isEmpty()) {
-                sorter.setRowFilter(null);
-            } else {
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text)));
-            }
-        });
-        timer.setRepeats(false);
-
-        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-        });
+        // Ignoring search field filtering for the calendar view to keep it intuitive
     }
 
     private void initUI() {
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        String[] columns = {"ID", "Class", "Date", "Start Time", "End Time", "Room ID", "Actions"};
-
-        model = new DefaultTableModel(columns, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-
-        loadData();
-
-        JTable table = new JTable(model);
-        sorter = new TableRowSorter<>(model);
-        table.setRowSorter(sorter);
-
-        setupTableStyling(table);
-
-        // Setup Custom Renderers
-        table.getColumnModel().getColumn(6).setCellRenderer(new ActionRenderer());
-
-        table.getColumnModel().getColumn(0).setPreferredWidth(50);
-        table.getColumnModel().getColumn(1).setPreferredWidth(250);
-
-        table.addMouseListener(new MouseAdapter() {
+        closeSidePanelListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row = e.getY() / table.getRowHeight();
-
-                if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
-                    if (table.getColumnName(column).equals("Actions")) {
-                        int modelRow = table.convertRowIndexToModel(row);
-                        int scheduleId = (int) model.getValueAt(modelRow, 0);
-
-                        Rectangle cellRect = table.getCellRect(row, column, false);
-                        int clickX = e.getX() - cellRect.x;
-
-                        if (clickX < cellRect.width / 2) {
-                            // Edit
-                            Schedule schedule = scheduleDAO.getScheduleById(scheduleId);
-                            if (schedule != null && mainFrame != null) {
-                                mainFrame.openScheduleSidePanel(schedule, (updatedSchedule) -> {
-                                    scheduleDAO.updateSchedule(updatedSchedule);
-                                    loadData();
-                                    mainFrame.toggleSidePanel(false);
-                                    JOptionPane.showMessageDialog(mainFrame, "Schedule updated successfully!");
-                                });
-                            }
-                        } else {
-                            // Delete
-                            int confirm = JOptionPane.showConfirmDialog(SchedulePanel.this,
-                                    "Are you sure you want to delete this schedule?", "Confirm Delete",
-                                    JOptionPane.YES_NO_OPTION);
-                            if (confirm == JOptionPane.YES_OPTION) {
-                                scheduleDAO.deleteSchedule(scheduleId);
-                                loadData();
-                            }
-                        }
-                    }
+                if (mainFrame != null) {
+                    mainFrame.toggleSidePanel(false);
                 }
             }
+        };
+        addMouseListener(closeSidePanelListener);
+
+        // Header Panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(new EmptyBorder(0, 0, 15, 0));
+
+        // Navigation Panel (Center)
+        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 0));
+        navPanel.setOpaque(false);
+        
+        JButton btnPrev = new JButton("<");
+        btnPrev.putClientProperty(FlatClientProperties.STYLE, "arc: 999; margin: 5, 10, 5, 10");
+        btnPrev.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnPrev.addActionListener(e -> {
+            currentWeekStart = currentWeekStart.minusWeeks(1);
+            reloadCalendar();
         });
 
-        table.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                if (column >= 0 && table.getColumnName(column).equals("Actions")) {
-                    table.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                } else {
-                    table.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                }
-            }
+        lblWeekRange = new JLabel();
+        lblWeekRange.setFont(new Font("Inter", Font.BOLD, 16));
+        lblWeekRange.setForeground(new Color(0x334155));
+        
+        JButton btnNext = new JButton(">");
+        btnNext.putClientProperty(FlatClientProperties.STYLE, "arc: 999; margin: 5, 10, 5, 10");
+        btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnNext.addActionListener(e -> {
+            currentWeekStart = currentWeekStart.plusWeeks(1);
+            reloadCalendar();
         });
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder());
-        scrollPane.setOpaque(false);
-        scrollPane.getViewport().setOpaque(false);
-
-        JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.setBackground(new Color(0xFFFFFF));
-        tableContainer.putClientProperty(FlatClientProperties.STYLE, "arc: 25");
-        tableContainer.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(0xE2E8F0), 1, true),
-                new EmptyBorder(10, 20, 10, 20)
-        ));
-
-        tableContainer.add(scrollPane, BorderLayout.CENTER);
-
+        navPanel.add(btnPrev);
+        navPanel.add(lblWeekRange);
+        navPanel.add(btnNext);
+        
+        // Actions Panel (Right)
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setOpaque(false);
-
-        JButton btnRefresh = new JButton("Refresh / Load");
-        btnRefresh.addActionListener(e -> {
-            loadData();
-            JOptionPane.showMessageDialog(this, "Data refreshed!");
-        });
-
         JButton btnAdd = new JButton("Add Schedule");
+        btnAdd.putClientProperty(FlatClientProperties.STYLE, "background: #6366F1; foreground: #FFFFFF; arc: 15; borderWidth: 0");
+        btnAdd.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAdd.addActionListener(e -> {
             if (mainFrame != null) {
                 mainFrame.openScheduleSidePanel(null, (newSchedule) -> {
                     scheduleDAO.addSchedule(newSchedule);
-                    loadData();
+                    loadDataFromDB();
                     mainFrame.toggleSidePanel(false);
-                    JOptionPane.showMessageDialog(mainFrame, "Schedule added successfully!");
                 });
             }
         });
-
-        actionPanel.add(btnRefresh);
+        
+        JButton btnToday = new JButton("Today");
+        btnToday.putClientProperty(FlatClientProperties.STYLE, "arc: 15");
+        btnToday.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnToday.addActionListener(e -> {
+             currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+             reloadCalendar();
+        });
+        
+        actionPanel.add(btnToday);
         actionPanel.add(btnAdd);
 
-        tableContainer.add(actionPanel, BorderLayout.SOUTH);
+        headerPanel.add(navPanel, BorderLayout.CENTER);
+        headerPanel.add(actionPanel, BorderLayout.EAST);
+        
+        add(headerPanel, BorderLayout.NORTH);
 
-        add(tableContainer, BorderLayout.CENTER);
+        // Calendar Area (7 Columns Mon -> Sun)
+        calendarGrid = new JPanel(new GridLayout(1, 7, 10, 0));
+        calendarGrid.setOpaque(false);
+        
+        JScrollPane scrollPane = new JScrollPane(calendarGrid);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.getViewport().addMouseListener(closeSidePanelListener);
+        scrollPane.setMinimumSize(new Dimension(0, 0));
+
+        add(scrollPane, BorderLayout.CENTER);
+
+        loadDataFromDB();
+    }
+    
+    private void loadDataFromDB() {
+        allSchedules = scheduleDAO.getAllSchedules();
+        reloadCalendar();
     }
 
-    private void loadData() {
-        if (model == null) return;
-        model.setRowCount(0);
-        List<Schedule> schedules = scheduleDAO.getAllSchedules();
-        for (Schedule s : schedules) {
-            String className = s.getCourseClass() != null ? s.getCourseClass().getClassName() : "N/A";
-            Object[] row = new Object[]{
-                    s.getId(),
-                    className,
-                    s.getScheduleDate() != null ? s.getScheduleDate().toString() : "",
-                    s.getStartTime() != null ? s.getStartTime().toString() : "",
-                    s.getEndTime() != null ? s.getEndTime().toString() : "",
-                    s.getRoomId() != null ? s.getRoomId().toString() : "",
-                    ""
-            };
-            model.addRow(row);
+    private void reloadCalendar() {
+        calendarGrid.removeAll();
+        
+        LocalDate weekEnd = currentWeekStart.plusDays(6);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMM dd");
+        lblWeekRange.setText(currentWeekStart.format(formatter) + " - " + weekEnd.format(formatter));
+        
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+        
+        for (int i = 0; i < 7; i++) {
+            LocalDate currentDate = currentWeekStart.plusDays(i);
+            JPanel dayCol = createDayColumn(days[i], currentDate);
+            calendarGrid.add(dayCol);
         }
+        
+        calendarGrid.revalidate();
+        calendarGrid.repaint();
     }
 
-    private void setupTableStyling(JTable table) {
-        table.setShowVerticalLines(false);
-        table.setShowHorizontalLines(true);
-        table.setGridColor(new Color(0xF1F5F9));
-        table.setIntercellSpacing(new Dimension(0, 0));
-        table.putClientProperty("Table.alternateRowColor", new Color(0xF8FAFC));
+    private JPanel createDayColumn(String dayName, LocalDate date) {
+        JPanel col = new JPanel(new BorderLayout());
+        col.setBackground(new Color(0xFFFFFF));
+        col.putClientProperty(FlatClientProperties.STYLE, "arc: 15");
+        col.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(0xE2E8F0), 1, true),
+            new EmptyBorder(10, 10, 10, 10)
+        ));
 
-        table.setRowHeight(50);
-        table.setSelectionBackground(new Color(0xE0E7FF));
-        table.setSelectionForeground(new Color(0x4338CA));
+        // Highlight if today
+        if (date.equals(LocalDate.now())) {
+            col.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(0x6366F1), 2, true),
+                new EmptyBorder(9, 9, 9, 9)
+            ));
+        }
 
-        JTableHeader header = table.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 45));
-        header.setFont(new Font("Inter", Font.BOLD, 14));
-        header.setBackground(new Color(0xF1F5F9));
-        header.setForeground(new Color(0x475569));
-        header.putClientProperty(FlatClientProperties.STYLE, "separatorColor: #E2E8F0; bottomSeparatorColor: #E2E8F0");
+        col.addMouseListener(closeSidePanelListener);
 
-        ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
+        // Day Header
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
+        headerPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+        
+        JLabel lblDay = new JLabel(dayName);
+        lblDay.setFont(new Font("Inter", Font.BOLD, 14));
+        lblDay.setForeground(date.equals(LocalDate.now()) ? new Color(0x6366F1) : new Color(0x334155));
+        
+        JLabel lblDate = new JLabel(date.format(DateTimeFormatter.ofPattern("dd/MM")));
+        lblDate.setFont(new Font("Inter", Font.PLAIN, 12));
+        lblDate.setForeground(new Color(0x94A3B8));
+        
+        headerPanel.add(lblDay, BorderLayout.WEST);
+        headerPanel.add(lblDate, BorderLayout.EAST);
+        
+        col.add(headerPanel, BorderLayout.NORTH);
+        
+        // Cards Container
+        JPanel cardsContainer = new JPanel();
+        cardsContainer.setLayout(new BoxLayout(cardsContainer, BoxLayout.Y_AXIS));
+        cardsContainer.setOpaque(false);
+        cardsContainer.addMouseListener(closeSidePanelListener);
+        
+        java.sql.Date sqlDate = java.sql.Date.valueOf(date);
+        List<Schedule> daySchedules = allSchedules.stream()
+            .filter(s -> s.getScheduleDate() != null && s.getScheduleDate().toString().equals(sqlDate.toString()))
+            .sorted((s1, s2) -> {
+                if (s1.getStartTime() == null || s2.getStartTime() == null) return 0;
+                return s1.getStartTime().compareTo(s2.getStartTime());
+            })
+            .collect(Collectors.toList());
+            
+        for (Schedule s : daySchedules) {
+            cardsContainer.add(createScheduleCard(s));
+            cardsContainer.add(Box.createRigidArea(new Dimension(0, 10)));
+        }
+        
+        // Wrap cards in flow to align top
+        JPanel alignTopPanel = new JPanel(new BorderLayout());
+        alignTopPanel.setOpaque(false);
+        alignTopPanel.add(cardsContainer, BorderLayout.NORTH);
+        alignTopPanel.addMouseListener(closeSidePanelListener);
+
+        col.add(alignTopPanel, BorderLayout.CENTER);
+        
+        return col;
     }
 
-    class ActionRenderer extends JPanel implements TableCellRenderer {
-        private JLabel lblEdit;
-        private JLabel lblDelete;
-
-        public ActionRenderer() {
-            setOpaque(true);
-            setLayout(new FlowLayout(FlowLayout.CENTER, 10, 5));
-
-            try {
-                lblEdit = new JLabel(new FlatSVGIcon("icons/edit.svg", 16, 16));
-                lblDelete = new JLabel(new FlatSVGIcon("icons/delete.svg", 16, 16));
-            } catch (Exception e) {
-                lblEdit = new JLabel("E");
-                lblDelete = new JLabel("D");
+    private JPanel createScheduleCard(Schedule schedule) {
+        JPanel card = new JPanel(new BorderLayout(5, 5));
+        card.setBackground(new Color(0xEEF2FF)); // light indigo
+        card.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
+        card.setBorder(new EmptyBorder(10, 10, 10, 10));
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        // Class Title
+        String className = schedule.getCourseClass() != null ? schedule.getCourseClass().getClassName() : "Unknown Class";
+        JLabel lblClass = new JLabel("<html><b>" + className + "</b></html>");
+        lblClass.setFont(new Font("Inter", Font.PLAIN, 12));
+        lblClass.setForeground(new Color(0x3730A3));
+        
+        // Start - End time
+        String timeStr = (schedule.getStartTime() != null ? schedule.getStartTime().toString().substring(0, 5) : "--:--") 
+                       + " - " 
+                       + (schedule.getEndTime() != null ? schedule.getEndTime().toString().substring(0, 5) : "--:--");
+        JLabel lblTime = new JLabel(timeStr);
+        lblTime.setFont(new Font("Inter", Font.PLAIN, 11));
+        lblTime.setForeground(new Color(0x4F46E5));
+        
+        // Room ID
+        JLabel lblRoom = new JLabel("Room: " + (schedule.getRoomId() != null ? schedule.getRoomId() : "N/A"));
+        lblRoom.setFont(new Font("Inter", Font.PLAIN, 11));
+        lblRoom.setForeground(new Color(0x6366F1));
+        
+        card.add(lblClass, BorderLayout.NORTH);
+        card.add(lblTime, BorderLayout.CENTER);
+        card.add(lblRoom, BorderLayout.SOUTH);
+        
+        // Click to view/edit
+        card.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (mainFrame != null) {
+                    mainFrame.openScheduleSidePanel(schedule, (updatedSchedule) -> {
+                        scheduleDAO.updateSchedule(updatedSchedule);
+                        loadDataFromDB();
+                        mainFrame.toggleSidePanel(false);
+                    });
+                }
             }
-
-            add(lblEdit);
-            add(lblDelete);
-        }
-
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-            return this;
-        }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                card.setBackground(new Color(0xE0E7FF)); // hover darker indigo
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                card.setBackground(new Color(0xEEF2FF)); // back to light indigo
+            }
+        });
+        
+        return card;
     }
 }

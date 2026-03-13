@@ -31,7 +31,7 @@ public class ScheduleDetailSidePanel extends JPanel {
     private JTextField tfEndTime;
     private JTextField tfRoomId;
 
-    private CourseClassDAO classDAO = new CourseClassDAO();
+    private CourseClassDAO classDAO = CourseClassDAO.getInstance();
 
     public ScheduleDetailSidePanel(Runnable onCloseCallback) {
         this.onCloseCallback = onCloseCallback;
@@ -115,7 +115,7 @@ public class ScheduleDetailSidePanel extends JPanel {
     }
 
     private void initUI() {
-        setLayout(new MigLayout("wrap 1, fillx, insets 25", "[grow]", "[][][grow][]"));
+        setLayout(new MigLayout("wrap 1, fillx, insets 25", "[grow]", ""));
         setBackground(cardBg);
         putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, borderColor));
@@ -217,10 +217,12 @@ public class ScheduleDetailSidePanel extends JPanel {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         tf.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
+        tf.setMinimumSize(new Dimension(10, 44));
     }
 
     private void styleComboBox(JComboBox<?> cb) {
         cb.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
         cb.setPreferredSize(new Dimension(-1, 40));
+        cb.setMinimumSize(new Dimension(10, 40));
     }
 }

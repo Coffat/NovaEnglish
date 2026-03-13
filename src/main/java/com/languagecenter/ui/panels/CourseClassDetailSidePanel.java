@@ -84,13 +84,13 @@ public class CourseClassDetailSidePanel extends JPanel {
 
     private void refreshComboBoxes() {
         cbCourse.removeAllItems();
-        List<Course> courses = new CourseDAO().getAllCourses();
+        List<Course> courses = CourseDAO.getInstance().getAllCourses();
         for (Course c : courses) {
             cbCourse.addItem(new CourseComboItem(c));
         }
 
         cbTeacher.removeAllItems();
-        List<Teacher> teachers = new TeacherDAO().getAllTeachers();
+        List<Teacher> teachers = TeacherDAO.getInstance().getAllTeachers();
         for (Teacher t : teachers) {
             cbTeacher.addItem(new TeacherComboItem(t));
         }

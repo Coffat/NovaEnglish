@@ -9,6 +9,18 @@ import java.util.ArrayList;
 
 public class EnrollmentDAO {
 
+    private static EnrollmentDAO instance;
+
+    private EnrollmentDAO() {}
+
+    public static EnrollmentDAO getInstance() {
+        if (instance == null) {
+            instance = new EnrollmentDAO();
+        }
+        return instance;
+    }
+
+
     public List<Enrollment> getAllEnrollments() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Enrollment", Enrollment.class).list();
@@ -69,6 +81,17 @@ public class EnrollmentDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public List<Enrollment> getEnrollmentsByClassId(int classId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Enrollment e WHERE e.courseClass.id = :classId", Enrollment.class)
+                    .setParameter("classId", classId)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }

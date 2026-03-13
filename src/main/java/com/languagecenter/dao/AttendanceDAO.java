@@ -9,6 +9,18 @@ import java.util.ArrayList;
 
 public class AttendanceDAO {
 
+    private static AttendanceDAO instance;
+
+    private AttendanceDAO() {}
+
+    public static AttendanceDAO getInstance() {
+        if (instance == null) {
+            instance = new AttendanceDAO();
+        }
+        return instance;
+    }
+
+
     public List<Attendance> getAllAttendances() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Attendance", Attendance.class).list();
@@ -69,6 +81,18 @@ public class AttendanceDAO {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public List<Attendance> getAttendancesByClassAndDate(int classId, java.time.LocalDate date) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Attendance a WHERE a.courseClass.id = :classId AND a.attendanceDate = :date", Attendance.class)
+                    .setParameter("classId", classId)
+                    .setParameter("date", date)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }
