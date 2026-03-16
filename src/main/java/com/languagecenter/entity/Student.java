@@ -63,6 +63,46 @@ public class Student {
         this.status = status;
     }
 
+    public static class Builder {
+        private int id;
+        private String fullName;
+        private LocalDate dateOfBirth;
+        private String gender;
+        private String phone;
+        private String email;
+        private String address;
+        private LocalDate registrationDate;
+        private String status;
+
+        public Builder id(int id) { this.id = id; return this; }
+        public Builder fullName(String fullName) { this.fullName = fullName; return this; }
+        public Builder dateOfBirth(LocalDate dateOfBirth) { this.dateOfBirth = dateOfBirth; return this; }
+        public Builder gender(String gender) { this.gender = gender; return this; }
+        public Builder phone(String phone) { this.phone = phone; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder address(String address) { this.address = address; return this; }
+        public Builder registrationDate(LocalDate registrationDate) { this.registrationDate = registrationDate; return this; }
+        public Builder status(String status) { this.status = status; return this; }
+
+        public Student build() {
+            Student student = new Student();
+            student.setId(id);
+            student.setFullName(fullName);
+            student.setDateOfBirth(dateOfBirth);
+            student.setGender(gender);
+            student.setPhone(phone);
+            student.setEmail(email);
+            student.setAddress(address);
+            student.setRegistrationDate(registrationDate);
+            student.setStatus(status);
+            return student;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public int getId() {
         return id;
     }

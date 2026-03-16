@@ -16,41 +16,45 @@ public class SeedData {
             // Clear existing data (optional, handling manually)
             
             // Add Teachers
-            Teacher t1 = new Teacher();
-            t1.setFullName("John Doe");
-            t1.setEmail("john.doe@email.com");
-            t1.setPhone("1234567890");
-            t1.setSpecialty("IELTS");
-            t1.setHireDate(LocalDate.now().minusYears(1));
-            t1.setStatus("Active");
+            Teacher t1 = Teacher.builder()
+                .fullName("John Doe")
+                .email("john.doe@email.com")
+                .phone("1234567890")
+                .specialty("IELTS")
+                .hireDate(LocalDate.now().minusYears(1))
+                .status("Active")
+                .build();
             session.persist(t1);
 
-            Teacher t2 = new Teacher();
-            t2.setFullName("Jane Smith");
-            t2.setEmail("jane.smith@email.com");
-            t2.setPhone("0987654321");
-            t2.setSpecialty("TOEIC");
-            t2.setHireDate(LocalDate.now().minusMonths(6));
-            t2.setStatus("Active");
+            Teacher t2 = Teacher.builder()
+                .fullName("Jane Smith")
+                .email("jane.smith@email.com")
+                .phone("0987654321")
+                .specialty("TOEIC")
+                .hireDate(LocalDate.now().minusMonths(6))
+                .status("Active")
+                .build();
             session.persist(t2);
 
             // Add Courses
-            Course c1 = new Course();
-            c1.setName("IELTS Masterclass");
-            c1.setDescription("Advanced IELTS preparation");
-            c1.setLevel("Advanced");
-            c1.setDuration(60);
-            c1.setFee(new BigDecimal("500.00"));
-            c1.setStatus("Active");
+            Course c1 = Course.builder()
+                .name("IELTS Masterclass")
+                .description("Advanced IELTS preparation")
+                .level("Advanced")
+                .duration(60)
+                .fee(new BigDecimal("500.00"))
+                .status("Active")
+                .build();
             session.persist(c1);
 
-            Course c2 = new Course();
-            c2.setName("TOEIC Intensive");
-            c2.setDescription("Intensive TOEIC training");
-            c2.setLevel("Intermediate");
-            c2.setDuration(45);
-            c2.setFee(new BigDecimal("300.00"));
-            c2.setStatus("Active");
+            Course c2 = Course.builder()
+                .name("TOEIC Intensive")
+                .description("Intensive TOEIC training")
+                .level("Intermediate")
+                .duration(45)
+                .fee(new BigDecimal("300.00"))
+                .status("Active")
+                .build();
             session.persist(c2);
 
             // Add Classes
@@ -86,15 +90,16 @@ public class SeedData {
 
             // Add Students
             for (int i = 1; i <= 15; i++) {
-                Student s = new Student();
-                s.setFullName("Student " + i);
-                s.setDateOfBirth(LocalDate.of(2000 + (i % 5), 1 + (i % 12), 1 + (i % 28)));
-                s.setGender(i % 2 == 0 ? "Male" : "Female");
-                s.setPhone("55512340" + i);
-                s.setEmail("student" + i + "@email.com");
-                s.setAddress("City " + i);
-                s.setRegistrationDate(LocalDate.now().minusMonths(i % 6));
-                s.setStatus("Active");
+                Student s = Student.builder()
+                    .fullName("Student " + i)
+                    .dateOfBirth(LocalDate.of(2000 + (i % 5), 1 + (i % 12), 1 + (i % 28)))
+                    .gender(i % 2 == 0 ? "Male" : "Female")
+                    .phone("55512340" + i)
+                    .email("student" + i + "@email.com")
+                    .address("City " + i)
+                    .registrationDate(LocalDate.now().minusMonths(i % 6))
+                    .status("Active")
+                    .build();
                 session.persist(s);
 
                 // Add Enrollments & Payments

@@ -225,6 +225,8 @@ public class PaymentPanel extends JPanel {
     }
 
     class StatusBadgeRenderer extends DefaultTableCellRenderer {
+        private final com.languagecenter.strategy.StatusStrategy strategy = new com.languagecenter.strategy.PaymentStatusStrategy();
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
@@ -232,29 +234,20 @@ public class PaymentPanel extends JPanel {
             container.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
             if (value != null) {
-                JLabel badge = new JLabel(value.toString());
+                String status = value.toString();
+                com.languagecenter.strategy.StatusStyle style = strategy.getStyle(status);
+
+                JLabel badge = new JLabel(status);
                 badge.setFont(new Font("Inter", Font.BOLD, 11));
                 badge.setBorder(new EmptyBorder(5, 12, 5, 12));
                 badge.setOpaque(false);
+                badge.setForeground(style.getForeground());
 
                 JPanel pill = new JPanel(new BorderLayout());
                 pill.add(badge);
-                pill.setOpaque(false);
+                pill.setOpaque(true);
+                pill.setBackground(style.getBackground());
                 pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
-
-                if (value.toString().equalsIgnoreCase("Completed")) {
-                    badge.setForeground(new Color(0x15803D));
-                    pill.setBackground(new Color(0xDCFCE7));
-                    pill.setOpaque(true);
-                } else if (value.toString().equalsIgnoreCase("Failed") || value.toString().equalsIgnoreCase("Refunded")) {
-                    badge.setForeground(new Color(0xB91C1C));
-                    pill.setBackground(new Color(0xFEE2E2));
-                    pill.setOpaque(true);
-                } else {
-                    badge.setForeground(new Color(0xB45309));
-                    pill.setBackground(new Color(0xFEF3C7));
-                    pill.setOpaque(true);
-                }
 
                 container.add(pill);
             }

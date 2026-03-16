@@ -44,6 +44,40 @@ public class Teacher {
         this.status = status;
     }
 
+    public static class Builder {
+        private int id;
+        private String fullName;
+        private String phone;
+        private String email;
+        private String specialty;
+        private LocalDate hireDate;
+        private String status;
+
+        public Builder id(int id) { this.id = id; return this; }
+        public Builder fullName(String fullName) { this.fullName = fullName; return this; }
+        public Builder phone(String phone) { this.phone = phone; return this; }
+        public Builder email(String email) { this.email = email; return this; }
+        public Builder specialty(String specialty) { this.specialty = specialty; return this; }
+        public Builder hireDate(LocalDate hireDate) { this.hireDate = hireDate; return this; }
+        public Builder status(String status) { this.status = status; return this; }
+
+        public Teacher build() {
+            Teacher teacher = new Teacher();
+            teacher.setId(id);
+            teacher.setFullName(fullName);
+            teacher.setPhone(phone);
+            teacher.setEmail(email);
+            teacher.setSpecialty(specialty);
+            teacher.setHireDate(hireDate);
+            teacher.setStatus(status);
+            return teacher;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public int getId() {
         return id;
     }

@@ -249,6 +249,8 @@ public class CourseClassPanel extends JPanel {
     }
 
     class StatusBadgeRenderer extends DefaultTableCellRenderer {
+        private final com.languagecenter.strategy.StatusStrategy strategy = new com.languagecenter.strategy.ClassStatusStrategy();
+
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                 int row, int column) {
@@ -257,33 +259,20 @@ public class CourseClassPanel extends JPanel {
             container.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
             if (value != null) {
-                JLabel badge = new JLabel(value.toString());
+                String status = value.toString();
+                com.languagecenter.strategy.StatusStyle style = strategy.getStyle(status);
+
+                JLabel badge = new JLabel(status);
                 badge.setFont(new Font("Inter", Font.BOLD, 11));
                 badge.setBorder(new EmptyBorder(5, 12, 5, 12));
                 badge.setOpaque(false);
+                badge.setForeground(style.getForeground());
 
                 JPanel pill = new JPanel(new BorderLayout());
                 pill.add(badge);
-                pill.setOpaque(false);
-                pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
-
-                if (value.toString().equalsIgnoreCase("On-going") || value.toString().equalsIgnoreCase("In Progress")
-                        || value.toString().equalsIgnoreCase("Active")) {
-                    badge.setForeground(new Color(0x15803D)); // Dark Green
-                    pill.setBackground(new Color(0xDCFCE7)); // Light Green
-                } else if (value.toString().equalsIgnoreCase("Opening") || value.toString().equalsIgnoreCase("Upcoming")
-                        || value.toString().equalsIgnoreCase("Oncoming")) {
-                    badge.setForeground(new Color(0xB45309)); // Dark Amber
-                    pill.setBackground(new Color(0xFEF3C7)); // Light Amber
-                } else if (value.toString().equalsIgnoreCase("Completed")) {
-                    badge.setForeground(new Color(0x1D4ED8)); // Dark Blue
-                    pill.setBackground(new Color(0xDBEAFE)); // Light Blue
-                } else {
-                    // Cancelled or Inactive
-                    badge.setForeground(new Color(0xB91C1C)); // Dark Red
-                    pill.setBackground(new Color(0xFEE2E2)); // Light Red
-                }
                 pill.setOpaque(true);
+                pill.setBackground(style.getBackground());
+                pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
 
                 container.add(pill);
             }

@@ -43,6 +43,40 @@ public class Course {
         this.status = status;
     }
 
+    public static class Builder {
+        private int id;
+        private String name;
+        private String description;
+        private String level;
+        private int duration;
+        private BigDecimal fee;
+        private String status;
+
+        public Builder id(int id) { this.id = id; return this; }
+        public Builder name(String name) { this.name = name; return this; }
+        public Builder description(String description) { this.description = description; return this; }
+        public Builder level(String level) { this.level = level; return this; }
+        public Builder duration(int duration) { this.duration = duration; return this; }
+        public Builder fee(BigDecimal fee) { this.fee = fee; return this; }
+        public Builder status(String status) { this.status = status; return this; }
+
+        public Course build() {
+            Course course = new Course();
+            course.setId(id);
+            course.setName(name);
+            course.setDescription(description);
+            course.setLevel(level);
+            course.setDuration(duration);
+            course.setFee(fee);
+            course.setStatus(status);
+            return course;
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     public int getId() {
         return id;
     }
