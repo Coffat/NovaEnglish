@@ -30,6 +30,17 @@ public class Teacher {
     @Column(name = "Status")
     private String status;
 
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.ALL)
+    private java.util.List<CourseClass> classes = new java.util.ArrayList<>();
+
+    public java.util.List<CourseClass> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(java.util.List<CourseClass> classes) {
+        this.classes = classes;
+    }
+
     public Teacher() {
     }
 

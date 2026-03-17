@@ -67,7 +67,8 @@ public class SchedulePanel extends JPanel {
         navPanel.setOpaque(false);
         
         JButton btnPrev = new JButton("<");
-        btnPrev.putClientProperty(FlatClientProperties.STYLE, "arc: 999; margin: 5, 10, 5, 10");
+        btnPrev.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_ROUND_RECT);
+        btnPrev.putClientProperty(FlatClientProperties.STYLE, "margin: 5, 10, 5, 10");
         btnPrev.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnPrev.addActionListener(e -> {
             currentWeekStart = currentWeekStart.minusWeeks(1);
@@ -79,7 +80,8 @@ public class SchedulePanel extends JPanel {
         lblWeekRange.setForeground(new Color(0x334155));
         
         JButton btnNext = new JButton(">");
-        btnNext.putClientProperty(FlatClientProperties.STYLE, "arc: 999; margin: 5, 10, 5, 10");
+        btnNext.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_ROUND_RECT);
+        btnNext.putClientProperty(FlatClientProperties.STYLE, "margin: 5, 10, 5, 10");
         btnNext.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnNext.addActionListener(e -> {
             currentWeekStart = currentWeekStart.plusWeeks(1);
@@ -94,12 +96,15 @@ public class SchedulePanel extends JPanel {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setOpaque(false);
         JButton btnAdd = new JButton("Add Schedule");
-        btnAdd.putClientProperty(FlatClientProperties.STYLE, "background: #6366F1; foreground: #FFFFFF; arc: 15; borderWidth: 0");
+        btnAdd.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_ROUND_RECT);
+        btnAdd.putClientProperty(FlatClientProperties.STYLE, "background: #6366F1; foreground: #FFFFFF; borderWidth: 0");
         btnAdd.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAdd.addActionListener(e -> {
             if (mainFrame != null) {
                 mainFrame.openScheduleSidePanel(null, (newSchedule) -> {
-                    scheduleDAO.addSchedule(newSchedule);
+                    if (newSchedule != null) {
+                        scheduleDAO.addSchedule(newSchedule);
+                    }
                     loadDataFromDB();
                     mainFrame.toggleSidePanel(false);
                 });
@@ -107,7 +112,7 @@ public class SchedulePanel extends JPanel {
         });
         
         JButton btnToday = new JButton("Today");
-        btnToday.putClientProperty(FlatClientProperties.STYLE, "arc: 15");
+        btnToday.putClientProperty(FlatClientProperties.BUTTON_TYPE, FlatClientProperties.BUTTON_TYPE_ROUND_RECT);
         btnToday.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnToday.addActionListener(e -> {
              currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -166,11 +171,7 @@ public class SchedulePanel extends JPanel {
     private JPanel createDayColumn(String dayName, LocalDate date) {
         JPanel col = new JPanel(new BorderLayout());
         col.setBackground(new Color(0xFFFFFF));
-        col.putClientProperty(FlatClientProperties.STYLE, "arc: 15");
-        col.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(0xE2E8F0), 1, true),
-            new EmptyBorder(10, 10, 10, 10)
-        ));
+        col.setBorder(new com.formdev.flatlaf.ui.FlatLineBorder(new Insets(10, 10, 10, 10), new Color(0xE2E8F0), 1, 15));
 
         // Highlight if today
         if (date.equals(LocalDate.now())) {
@@ -234,8 +235,7 @@ public class SchedulePanel extends JPanel {
     private JPanel createScheduleCard(Schedule schedule) {
         JPanel card = new JPanel(new BorderLayout(5, 5));
         card.setBackground(new Color(0xEEF2FF)); // light indigo
-        card.putClientProperty(FlatClientProperties.STYLE, "arc: 10");
-        card.setBorder(new EmptyBorder(10, 10, 10, 10));
+        card.setBorder(new com.formdev.flatlaf.ui.FlatLineBorder(new Insets(10, 10, 10, 10), new Color(0xEEF2FF), 0, 10));
         card.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         // Class Title
@@ -267,7 +267,9 @@ public class SchedulePanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 if (mainFrame != null) {
                     mainFrame.openScheduleSidePanel(schedule, (updatedSchedule) -> {
-                        scheduleDAO.updateSchedule(updatedSchedule);
+                        if (updatedSchedule != null) {
+                            scheduleDAO.updateSchedule(updatedSchedule);
+                        }
                         loadDataFromDB();
                         mainFrame.toggleSidePanel(false);
                     });

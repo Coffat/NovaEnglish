@@ -29,7 +29,9 @@
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/ChangePasswordDialog.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/ClassEnrollmentsDialog.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/StudentDialog.java
+/Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/StudentProfileDialog.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/TakeClassAttendanceDialog.java
+/Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/dialogs/TeacherProfileDialog.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/factory/PanelFactory.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/factory/SidePanelFactory.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/CourseClassDetailSidePanel.java

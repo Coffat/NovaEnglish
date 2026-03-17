@@ -12,7 +12,10 @@ import net.miginfocom.swing.MigLayout;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.DayOfWeek;
+import java.time.format.DateTimeFormatter;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -29,7 +32,10 @@ public class CourseClassDetailSidePanel extends JPanel {
     private JTextField tfClassName;
     private JComboBox<CourseComboItem> cbCourse;
     private JComboBox<TeacherComboItem> cbTeacher;
-    private JTextField tfStartDate;
+    private DatePicker dpStartDate;
+    private JComboBox<String> cbSchedulePattern;
+    private JTextField tfStartTime;
+    private JTextField tfEndTime;
     private JTextField tfEndDate;
     private JSpinner spMaxStudent;
     private JComboBox<String> cbStatus;
@@ -47,8 +53,11 @@ public class CourseClassDetailSidePanel extends JPanel {
 
         if (courseClass != null) {
             tfClassName.setText(courseClass.getClassName());
-            tfStartDate.setText(courseClass.getStartDate() != null ? courseClass.getStartDate().toString() : "");
-            tfEndDate.setText(courseClass.getEndDate() != null ? courseClass.getEndDate().toString() : "");
+            dpStartDate.setDate(courseClass.getStartDate());
+            cbSchedulePattern.setSelectedItem(courseClass.getSchedulePattern() != null ? courseClass.getSchedulePattern() : "2-4-6");
+            tfStartTime.setText(courseClass.getStartTime() != null ? courseClass.getStartTime().toString() : "08:00");
+            tfEndTime.setText(courseClass.getEndTime() != null ? courseClass.getEndTime().toString() : "10:00");
+            tfEndDate.setText(courseClass.getEndDate() != null ? courseClass.getEndDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "");
             spMaxStudent.setValue(courseClass.getMaxStudent());
             cbStatus.setSelectedItem(courseClass.getStatus());
 
@@ -71,7 +80,10 @@ public class CourseClassDetailSidePanel extends JPanel {
             }
         } else {
             tfClassName.setText("");
-            tfStartDate.setText("");
+            dpStartDate.setDate(null);
+            cbSchedulePattern.setSelectedIndex(0);
+            tfStartTime.setText("08:00");
+            tfEndTime.setText("10:00");
             tfEndDate.setText("");
             spMaxStudent.setValue(20);
             cbStatus.setSelectedIndex(0);
@@ -80,6 +92,7 @@ public class CourseClassDetailSidePanel extends JPanel {
             if (cbTeacher.getItemCount() > 0)
                 cbTeacher.setSelectedIndex(0);
         }
+        updateEndDate();
     }
 
     private void refreshComboBoxes() {
@@ -121,20 +134,70 @@ public class CourseClassDetailSidePanel extends JPanel {
 
             currentClass.setMaxStudent((Integer) spMaxStudent.getValue());
             currentClass.setStatus((String) cbStatus.getSelectedItem());
+            currentClass.setSchedulePattern((String) cbSchedulePattern.getSelectedItem());
 
             try {
-                String startDateText = tfStartDate.getText().trim();
-                currentClass.setStartDate(startDateText.isEmpty() ? null : LocalDate.parse(startDateText));
-
-                String endDateText = tfEndDate.getText().trim();
-                currentClass.setEndDate(endDateText.isEmpty() ? null : LocalDate.parse(endDateText));
-            } catch (DateTimeParseException e) {
-                JOptionPane.showMessageDialog(this, "Invalid Date format. Use yyyy-MM-dd.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                currentClass.setStartTime(java.time.LocalTime.parse(tfStartTime.getText().trim()));
+                currentClass.setEndTime(java.time.LocalTime.parse(tfEndTime.getText().trim()));
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Invalid Time format. Use HH:mm.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
+            currentClass.setStartDate(dpStartDate.getDate());
+            
+            // Re-calculate end date before saving to be sure
+            updateEndDate();
+            String endDateText = tfEndDate.getText();
+            if (!endDateText.isEmpty()) {
+                currentClass.setEndDate(LocalDate.parse(endDateText, DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            }
+
             onSaveCallback.accept(currentClass);
+        }
+    }
+
+    private void updateEndDate() {
+        LocalDate start = dpStartDate.getDate();
+        CourseComboItem item = (CourseComboItem) cbCourse.getSelectedItem();
+        String pattern = (String) cbSchedulePattern.getSelectedItem();
+
+        if (start != null && item != null && pattern != null) {
+            int duration = item.course.getDuration(); // Duration is total sessions
+            if (duration <= 0) {
+                tfEndDate.setText("");
+                return;
+            }
+
+            LocalDate end = start;
+            int sessionsCount = 0;
+            
+            // Pattern rules
+            // 2-4-6: Monday, Wednesday, Friday
+            // 3-5-7: Tuesday, Thursday, Saturday
+            
+            while (sessionsCount < duration) {
+                DayOfWeek dow = end.getDayOfWeek();
+                boolean isSessionDay = false;
+                if (pattern.equals("2-4-6")) {
+                    if (dow == DayOfWeek.MONDAY || dow == DayOfWeek.WEDNESDAY || dow == DayOfWeek.FRIDAY) {
+                        isSessionDay = true;
+                    }
+                } else if (pattern.equals("3-5-7")) {
+                    if (dow == DayOfWeek.TUESDAY || dow == DayOfWeek.THURSDAY || dow == DayOfWeek.SATURDAY) {
+                        isSessionDay = true;
+                    }
+                }
+                
+                if (isSessionDay) {
+                    sessionsCount++;
+                    if (sessionsCount == duration) break;
+                }
+                end = end.plusDays(1);
+            }
+            tfEndDate.setText(end.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        } else {
+            tfEndDate.setText("");
         }
     }
 
@@ -156,9 +219,9 @@ public class CourseClassDetailSidePanel extends JPanel {
         btnClose.setFont(new Font("Inter", Font.BOLD, 18));
         btnClose.setForeground(new Color(0x94A3B8));
         try {
-            java.net.URL url = getClass().getResource("/icons/delete.svg");
+            java.net.URL url = getClass().getResource("/icons/close.svg");
             if (url != null) {
-                btnClose.setIcon(new FlatSVGIcon("icons/delete.svg", 16, 16));
+                btnClose.setIcon(new FlatSVGIcon("icons/close.svg", 16, 16));
                 btnClose.setText("");
             }
         } catch (Exception e) {
@@ -178,12 +241,6 @@ public class CourseClassDetailSidePanel extends JPanel {
 
         // Form fields
         tfClassName = createTextField("e.g. ENG-Basic-01");
-        cbCourse = new JComboBox<>();
-        styleComboBox(cbCourse);
-        cbTeacher = new JComboBox<>();
-        styleComboBox(cbTeacher);
-        tfStartDate = createTextField("yyyy-MM-dd");
-        tfEndDate = createTextField("yyyy-MM-dd");
         spMaxStudent = new JSpinner(new SpinnerNumberModel(20, 1, 100, 1));
         spMaxStudent.setPreferredSize(new Dimension(-1, 40));
 
@@ -191,15 +248,47 @@ public class CourseClassDetailSidePanel extends JPanel {
         add(tfClassName, "growx, gapbottom 10");
 
         add(createLabel("Course"));
+        cbCourse = new JComboBox<>();
+        styleComboBox(cbCourse);
+        cbCourse.addActionListener(e -> updateEndDate());
         add(cbCourse, "growx, gapbottom 10");
 
         add(createLabel("Teacher"));
+        cbTeacher = new JComboBox<>();
+        styleComboBox(cbTeacher);
         add(cbTeacher, "growx, gapbottom 10");
 
         add(createLabel("Start Date"));
-        add(tfStartDate, "growx, gapbottom 10");
+        DatePickerSettings settings = new DatePickerSettings();
+        settings.setFormatForDatesCommonEra("dd/MM/yyyy");
+        dpStartDate = new DatePicker(settings);
+        dpStartDate.addDateChangeListener(e -> updateEndDate());
+        add(dpStartDate, "growx, gapbottom 10");
 
-        add(createLabel("End Date"));
+        add(createLabel("Schedule Pattern"));
+        cbSchedulePattern = new JComboBox<>(new String[] { "2-4-6", "3-5-7" });
+        cbSchedulePattern.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC");
+        cbSchedulePattern.setPreferredSize(new Dimension(-1, 40));
+        cbSchedulePattern.addActionListener(e -> updateEndDate());
+        add(cbSchedulePattern, "growx, gapbottom 10");
+
+        JPanel timePanel = new JPanel(new MigLayout("insets 0, fillx", "[grow][grow]", "[][]"));
+        timePanel.setOpaque(false);
+        
+        tfStartTime = createTextField("08:00");
+        tfEndTime = createTextField("10:00");
+        
+        timePanel.add(createLabel("Start Time (HH:mm)"), "cell 0 0");
+        timePanel.add(createLabel("End Time (HH:mm)"), "cell 1 0");
+        timePanel.add(tfStartTime, "cell 0 1, growx");
+        timePanel.add(tfEndTime, "cell 1 1, growx");
+        
+        add(timePanel, "growx, gapbottom 10");
+
+        add(createLabel("End Date (Calculated)"));
+        tfEndDate = createTextField("");
+        tfEndDate.setEditable(false);
+        tfEndDate.setBackground(new Color(0xF1F5F9));
         add(tfEndDate, "growx, gapbottom 10");
 
         add(createLabel("Max Students"));
@@ -234,15 +323,16 @@ public class CourseClassDetailSidePanel extends JPanel {
     private JTextField createTextField(String placeholder) {
         JTextField tf = new JTextField();
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
+        tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 40));
         return tf;
     }
 
     private void styleComboBox(JComboBox<?> cb) {
         cb.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
+                "focusedBorderColor: #6366F1; background: #F8FAFC");
         cb.setPreferredSize(new Dimension(-1, 40));
     }
 

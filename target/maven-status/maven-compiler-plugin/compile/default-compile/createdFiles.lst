@@ -14,7 +14,6 @@ com/languagecenter/dao/StudentDAO.class
 com/languagecenter/ui/panels/TeacherPanel.class
 com/languagecenter/ui/panels/ScheduleDetailSidePanel$1.class
 com/languagecenter/ui/panels/StudentPanel$1.class
-com/languagecenter/ui/dialogs/TakeClassAttendanceDialog$3.class
 com/languagecenter/ui/panels/PaymentDetailSidePanel$2.class
 com/languagecenter/ui/panels/CourseClassDetailSidePanel.class
 com/languagecenter/ui/panels/CourseClassDetailSidePanel$CourseComboItem.class

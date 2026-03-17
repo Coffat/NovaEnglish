@@ -86,7 +86,6 @@ public class CourseDetailSidePanel extends JPanel {
     private void initUI() {
         setLayout(new MigLayout("wrap 1, fillx, insets 25", "[grow]", "[][][grow][]"));
         setBackground(cardBg);
-        putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, borderColor));
 
         // Header
@@ -101,9 +100,9 @@ public class CourseDetailSidePanel extends JPanel {
         btnClose.setFont(new Font("Inter", Font.BOLD, 18));
         btnClose.setForeground(new Color(0x94A3B8));
         try {
-            java.net.URL url = getClass().getResource("/icons/delete.svg");
+            java.net.URL url = getClass().getResource("/icons/close.svg");
             if (url != null) {
-                btnClose.setIcon(new FlatSVGIcon("icons/delete.svg", 16, 16));
+                btnClose.setIcon(new FlatSVGIcon("icons/close.svg", 16, 16));
                 btnClose.setText("");
             }
         } catch (Exception e) {
@@ -146,7 +145,7 @@ public class CourseDetailSidePanel extends JPanel {
         add(createLabel("Status"));
         cbStatus = new JComboBox<>(new String[] { "Active", "Inactive" });
         cbStatus.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
+                "focusedBorderColor: #6366F1; background: #F8FAFC");
         cbStatus.setPreferredSize(new Dimension(-1, 40));
         add(cbStatus, "growx, gapbottom 30");
 
@@ -174,8 +173,9 @@ public class CourseDetailSidePanel extends JPanel {
     private JTextField createTextField(String placeholder) {
         JTextField tf = new JTextField();
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
+        tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
         return tf;
     }

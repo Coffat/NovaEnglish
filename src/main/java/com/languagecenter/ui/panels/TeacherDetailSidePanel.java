@@ -105,9 +105,9 @@ public class TeacherDetailSidePanel extends JPanel {
         btnClose.setFont(new Font("Inter", Font.BOLD, 18));
         btnClose.setForeground(new Color(0x94A3B8));
         try {
-            java.net.URL url = getClass().getResource("/icons/delete.svg");
+            java.net.URL url = getClass().getResource("/icons/close.svg");
             if (url != null) {
-                btnClose.setIcon(new FlatSVGIcon("icons/delete.svg", 16, 16));
+                btnClose.setIcon(new FlatSVGIcon("icons/close.svg", 16, 16));
                 btnClose.setText("");
             }
         } catch (Exception e) {
@@ -149,10 +149,15 @@ public class TeacherDetailSidePanel extends JPanel {
         dateSettings.setAllowKeyboardEditing(true);
         dpHireDate = new DatePicker(dateSettings);
         dpHireDate.setBackground(cardBg);
-        dpHireDate.getComponentDateTextField().putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
-        dpHireDate.getComponentToggleCalendarButton().putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; background: #6366F1; foreground: #FFFFFF; margin: 5, 10, 5, 10");
+        JTextField hireTf = dpHireDate.getComponentDateTextField();
+        hireTf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
+        hireTf.putClientProperty(FlatClientProperties.STYLE,
+                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+        
+        JButton hireBtn = dpHireDate.getComponentToggleCalendarButton();
+        hireBtn.putClientProperty(FlatClientProperties.STYLE,
+                "background: #6366F1; foreground: #FFFFFF; margin: 5, 10, 5, 10");
+        
 
         add(createLabel("Full Name"));
         add(tfFullName, "growx, gapbottom 15");
@@ -172,7 +177,7 @@ public class TeacherDetailSidePanel extends JPanel {
         add(createLabel("Status"));
         cbStatus = new JComboBox<>(new String[] { "Active", "Inactive" });
         cbStatus.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
+                "focusedBorderColor: #6366F1; background: #F8FAFC");
         cbStatus.setPreferredSize(new Dimension(-1, 40));
         add(cbStatus, "growx, gapbottom 30");
 
@@ -201,8 +206,9 @@ public class TeacherDetailSidePanel extends JPanel {
     private JTextField createTextField(String placeholder) {
         JTextField tf = new JTextField();
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
+        tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
         return tf;
     }

@@ -77,7 +77,14 @@ public class TeacherDAO {
 
     public Teacher getTeacherById(int id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Teacher.class, id);
+            Teacher teacher = session.get(Teacher.class, id);
+            if (teacher != null) {
+                org.hibernate.Hibernate.initialize(teacher.getClasses());
+                for (com.languagecenter.entity.CourseClass cc : teacher.getClasses()) {
+                    org.hibernate.Hibernate.initialize(cc.getCourse());
+                }
+            }
+            return teacher;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

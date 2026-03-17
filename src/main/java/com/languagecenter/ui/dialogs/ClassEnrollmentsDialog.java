@@ -1,19 +1,20 @@
 package com.languagecenter.ui.dialogs;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.languagecenter.dao.EnrollmentDAO;
 import com.languagecenter.dao.StudentDAO;
 import com.languagecenter.entity.CourseClass;
 import com.languagecenter.entity.Enrollment;
 import com.languagecenter.entity.Student;
-import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.TableColumn;
 
 public class ClassEnrollmentsDialog extends JDialog {
 
@@ -24,6 +25,8 @@ public class ClassEnrollmentsDialog extends JDialog {
     private DefaultTableModel model;
     private JTable table;
     private JComboBox<Student> cbAddStudent;
+    private JButton btnSave;
+    private boolean isUpdating = false;
 
     public ClassEnrollmentsDialog(JFrame parent, CourseClass courseClass) {
         super(parent, "Enrollments: " + courseClass.getClassName(), true);
@@ -87,7 +90,7 @@ public class ClassEnrollmentsDialog extends JDialog {
         model = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;
+                return column == 3 || column == 4;
             }
         };
 
@@ -101,8 +104,8 @@ public class ClassEnrollmentsDialog extends JDialog {
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row = e.getY() / table.getRowHeight();
+                int column = table.columnAtPoint(e.getPoint());
+                int row = table.rowAtPoint(e.getPoint());
 
                 if (row < table.getRowCount() && row >= 0 && column == 5) {
                     int enrollmentId = (int) model.getValueAt(table.convertRowIndexToModel(row), 0);
@@ -114,6 +117,22 @@ public class ClassEnrollmentsDialog extends JDialog {
                         loadEnrollments();
                         loadAvailableStudents();
                     }
+                }
+            }
+        });
+
+        // Set up Status editor
+        TableColumn statusColumn = table.getColumnModel().getColumn(4);
+        JComboBox<String> statusCombo = new JComboBox<>(new String[]{"Enrolled", "Ongoing", "Completed", "Dropped", "Failed"});
+        statusColumn.setCellEditor(new DefaultCellEditor(statusCombo));
+
+        // Add Listener for edits
+        model.addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                if (!isUpdating && e.getType() == TableModelEvent.UPDATE) {
+                    btnSave.setEnabled(true);
+                    btnSave.setBackground(new Color(0x6366F1));
                 }
             }
         });
@@ -137,15 +156,51 @@ public class ClassEnrollmentsDialog extends JDialog {
         // Footer
         JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 20));
         footerPanel.setOpaque(false);
+
+        btnSave = new JButton("Save Changes");
+        btnSave.setEnabled(false);
+        btnSave.setBackground(new Color(0xCBD5E1)); // Gray when disabled
+        btnSave.setForeground(Color.WHITE);
+        btnSave.setFont(new Font("Inter", Font.BOLD, 14));
+        btnSave.putClientProperty(FlatClientProperties.STYLE, "margin: 8, 20, 8, 20");
+        btnSave.addActionListener(e -> saveAllChanges());
+
         JButton btnClose = new JButton("Close");
         btnClose.addActionListener(e -> dispose());
+        
+        footerPanel.add(btnSave);
         footerPanel.add(btnClose);
         mainPanel.add(footerPanel, BorderLayout.SOUTH);
 
         add(mainPanel);
     }
 
+    private void saveAllChanges() {
+        try {
+            for (int i = 0; i < model.getRowCount(); i++) {
+                int enrollmentId = (int) model.getValueAt(i, 0);
+                Object resultObj = model.getValueAt(i, 3);
+                String status = model.getValueAt(i, 4).toString();
+
+                Enrollment enrollment = enrollmentDAO.getEnrollmentById(enrollmentId);
+                if (enrollment != null) {
+                    if (resultObj != null && !resultObj.toString().trim().isEmpty()) {
+                        enrollment.setResult(Float.parseFloat(resultObj.toString()));
+                    }
+                    enrollment.setStatus(status);
+                    enrollmentDAO.updateEnrollment(enrollment);
+                }
+            }
+            JOptionPane.showMessageDialog(this, "All changes saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            btnSave.setEnabled(false);
+            btnSave.setBackground(new Color(0xCBD5E1));
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error saving changes: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadEnrollments() {
+        isUpdating = true;
         model.setRowCount(0);
         List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByClassId(courseClass.getId());
         for (Enrollment e : enrollments) {
@@ -160,6 +215,11 @@ public class ClassEnrollmentsDialog extends JDialog {
                         "❌ Remove"
                 });
             }
+        }
+        isUpdating = false;
+        if (btnSave != null) {
+            btnSave.setEnabled(false);
+            btnSave.setBackground(new Color(0xCBD5E1));
         }
     }
 

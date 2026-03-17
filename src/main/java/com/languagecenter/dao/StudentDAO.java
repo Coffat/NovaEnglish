@@ -114,7 +114,19 @@ public class StudentDAO {
 
     public Student getStudentById(int id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Student.class, id);
+            Student student = session.get(Student.class, id);
+            if (student != null) {
+                // Initialize collections and nested properties before session close
+                org.hibernate.Hibernate.initialize(student.getEnrollments());
+                for (com.languagecenter.entity.Enrollment e : student.getEnrollments()) {
+                    org.hibernate.Hibernate.initialize(e.getCourseClass());
+                    if (e.getCourseClass() != null) {
+                        org.hibernate.Hibernate.initialize(e.getCourseClass().getCourse());
+                    }
+                }
+                org.hibernate.Hibernate.initialize(student.getPayments());
+            }
+            return student;
         } catch (Exception e) {
             e.printStackTrace();
             return null;

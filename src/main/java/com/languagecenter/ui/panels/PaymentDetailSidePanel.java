@@ -135,7 +135,6 @@ public class PaymentDetailSidePanel extends JPanel {
     private void initUI() {
         setLayout(new MigLayout("wrap 1, fillx, insets 25", "[grow]", "[][][grow][]"));
         setBackground(cardBg);
-        putClientProperty(FlatClientProperties.STYLE, "arc: 0");
         setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, borderColor));
 
         // Header
@@ -150,9 +149,9 @@ public class PaymentDetailSidePanel extends JPanel {
         btnClose.setFont(new Font("Inter", Font.BOLD, 18));
         btnClose.setForeground(new Color(0x94A3B8));
         try {
-            java.net.URL url = getClass().getResource("/icons/delete.svg");
+            java.net.URL url = getClass().getResource("/icons/close.svg");
             if (url != null) {
-                btnClose.setIcon(new FlatSVGIcon("icons/delete.svg", 16, 16));
+                btnClose.setIcon(new FlatSVGIcon("icons/close.svg", 16, 16));
                 btnClose.setText("");
             }
         } catch (Exception e) {}
@@ -251,12 +250,13 @@ public class PaymentDetailSidePanel extends JPanel {
 
     private void styleTextField(JTextField tf, String placeholder) {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
-        tf.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+        tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
+        tf.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
     }
 
     private void styleComboBox(JComboBox<?> cb) {
-        cb.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
+        cb.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC");
         cb.setPreferredSize(new Dimension(-1, 40));
     }
 }

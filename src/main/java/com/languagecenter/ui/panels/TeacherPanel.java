@@ -89,10 +89,24 @@ public class TeacherPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row = e.getY() / table.getRowHeight();
+                int row = table.rowAtPoint(e.getPoint());
 
-                if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
-                    if (table.getColumnName(column).equals("Actions")) {
+                if (row < table.getRowCount() && row >= 0) {
+                    // Double click check
+                    if (e.getClickCount() == 2) {
+                        int modelRow = table.convertRowIndexToModel(row);
+                        int teacherId = (int) model.getValueAt(modelRow, 0);
+                        Teacher teacher = teacherDAO.getTeacherById(teacherId);
+                        if (teacher != null) {
+                            new com.languagecenter.ui.dialogs.TeacherProfileDialog(
+                                SwingUtilities.getWindowAncestor(TeacherPanel.this), teacher, mainFrame, (updatedTeacher) -> {
+                                    loadData();
+                                }).setVisible(true);
+                        }
+                        return;
+                    }
+
+                    if (column >= 0 && table.getColumnName(column).equals("Actions")) {
                         int modelRow = table.convertRowIndexToModel(row);
                         int teacherId = (int) model.getValueAt(modelRow, 0);
 

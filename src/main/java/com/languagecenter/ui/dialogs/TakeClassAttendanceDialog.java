@@ -15,16 +15,16 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 
 public class TakeClassAttendanceDialog extends JDialog {
 
     private JComboBox<CourseClass> cbClass;
-    private JTextField tfDate;
+    private DatePicker dpDate;
     private JTable table;
     private DefaultTableModel model;
-    private JButton btnLoadStudents;
     private JButton btnSave;
     
     private CourseClassDAO classDAO = CourseClassDAO.getInstance();
@@ -55,7 +55,7 @@ public class TakeClassAttendanceDialog extends JDialog {
                 }
             }
             cbClass.setEnabled(false);
-            loadStudents(false);
+            loadStudents();
         }
     }
 
@@ -81,20 +81,17 @@ public class TakeClassAttendanceDialog extends JDialog {
             }
         });
         
-        JLabel lblDate = new JLabel("Date (yyyy-MM-dd):");
-        tfDate = new JTextField(LocalDate.now().toString());
-        tfDate.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1");
-        
-        btnLoadStudents = new JButton("Load Students");
-        btnLoadStudents.setBackground(new Color(0xE0E7FF));
-        btnLoadStudents.setForeground(new Color(0x4338CA));
-        btnLoadStudents.addActionListener(e -> loadStudents(true));
+        JLabel lblDate = new JLabel("Select Date:");
+        DatePickerSettings dateSettings = new DatePickerSettings();
+        dateSettings.setFormatForDatesCommonEra("yyyy-MM-dd");
+        dpDate = new DatePicker(dateSettings);
+        dpDate.setDate(LocalDate.now());
+        dpDate.addDateChangeListener(e -> loadStudents());
         
         headerPanel.add(lblClass);
         headerPanel.add(cbClass, "growx, w 200!");
         headerPanel.add(lblDate, "gapleft 20");
-        headerPanel.add(tfDate, "w 120!");
-        headerPanel.add(btnLoadStudents, "gapleft 20");
+        headerPanel.add(dpDate, "w 180!");
 
         mainPanel.add(headerPanel, BorderLayout.NORTH);
 
@@ -140,24 +137,8 @@ public class TakeClassAttendanceDialog extends JDialog {
 
         // Auto reload when changing selections
         cbClass.addActionListener(e -> {
-            if (cbClass.getSelectedItem() != null) loadStudents(false);
+            if (cbClass.getSelectedItem() != null) loadStudents();
         });
-
-        Timer timer = new Timer(500, e -> {
-            loadStudents(false);
-        });
-        timer.setRepeats(false);
-
-        tfDate.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-            @Override
-            public void insertUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-            @Override
-            public void removeUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-            @Override
-            public void changedUpdate(javax.swing.event.DocumentEvent e) { timer.restart(); }
-        });
-        
-        tfDate.addActionListener(e -> loadStudents(true));
     }
 
     private void loadClasses() {
@@ -175,22 +156,12 @@ public class TakeClassAttendanceDialog extends JDialog {
         }
     }
 
-    private void loadStudents(boolean explicit) {
+    private void loadStudents() {
         CourseClass selectedClass = (CourseClass) cbClass.getSelectedItem();
-        if (selectedClass == null) {
-            JOptionPane.showMessageDialog(this, "Please select a class.", "Notice", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        if (selectedClass == null) return;
 
-        LocalDate attendanceDate;
-        try {
-            attendanceDate = LocalDate.parse(tfDate.getText().trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (Exception e) {
-            if (explicit) {
-                JOptionPane.showMessageDialog(this, "Invalid Date format. Use yyyy-MM-dd to view/load history.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-            return;
-        }
+        LocalDate attendanceDate = dpDate.getDate();
+        if (attendanceDate == null) return;
 
         model.setRowCount(0);
         List<Enrollment> enrollments = enrollmentDAO.getEnrollmentsByClassId(selectedClass.getId());
@@ -218,10 +189,8 @@ public class TakeClassAttendanceDialog extends JDialog {
             }
         }
         
-        if (enrollments.isEmpty() && explicit) {
-            JOptionPane.showMessageDialog(this, "No students enrolled in this class.", "Info", JOptionPane.INFORMATION_MESSAGE);
-        } else if (!existingAttendances.isEmpty() && explicit) {
-            JOptionPane.showMessageDialog(this, "Loaded " + existingAttendances.size() + " existing attendance records for this date.", "Info", JOptionPane.INFORMATION_MESSAGE);
+        if (enrollments.isEmpty()) {
+            // Optional: feedback for no students
         }
     }
 
@@ -236,11 +205,9 @@ public class TakeClassAttendanceDialog extends JDialog {
             return;
         }
 
-        LocalDate attendanceDate;
-        try {
-            attendanceDate = LocalDate.parse(tfDate.getText().trim(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Invalid Date format. Use yyyy-MM-dd.", "Error", JOptionPane.ERROR_MESSAGE);
+        LocalDate attendanceDate = dpDate.getDate();
+        if (attendanceDate == null) {
+            JOptionPane.showMessageDialog(this, "Please select a valid date.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

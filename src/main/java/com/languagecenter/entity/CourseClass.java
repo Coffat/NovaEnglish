@@ -35,11 +35,20 @@ public class CourseClass {
     @Column(name = "Status")
     private String status;
 
+    @Column(name = "SchedulePattern")
+    private String schedulePattern; // "2-4-6" or "3-5-7"
+
+    @Column(name = "StartTime")
+    private java.time.LocalTime startTime;
+
+    @Column(name = "EndTime")
+    private java.time.LocalTime endTime;
+
     public CourseClass() {
     }
 
     public CourseClass(int id, String className, Course course, Teacher teacher, LocalDate startDate, LocalDate endDate,
-            int maxStudent, String status) {
+            int maxStudent, String status, String schedulePattern, java.time.LocalTime startTime, java.time.LocalTime endTime) {
         this.id = id;
         this.className = className;
         this.course = course;
@@ -48,6 +57,9 @@ public class CourseClass {
         this.endDate = endDate;
         this.maxStudent = maxStudent;
         this.status = status;
+        this.schedulePattern = schedulePattern;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     public int getId() {
@@ -112,5 +124,29 @@ public class CourseClass {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSchedulePattern() {
+        return schedulePattern;
+    }
+
+    public void setSchedulePattern(String schedulePattern) {
+        this.schedulePattern = schedulePattern;
+    }
+
+    public java.time.LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(java.time.LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public java.time.LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(java.time.LocalTime endTime) {
+        this.endTime = endTime;
     }
 }

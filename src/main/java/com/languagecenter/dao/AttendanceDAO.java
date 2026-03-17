@@ -95,4 +95,16 @@ public class AttendanceDAO {
             return new ArrayList<>();
         }
     }
+
+    public long countStudentAttendance(int studentId, int classId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("SELECT COUNT(a) FROM Attendance a WHERE a.student.id = :studentId AND a.courseClass.id = :classId AND (a.status = 'Present' OR a.status = 'Late')", Long.class)
+                    .setParameter("studentId", studentId)
+                    .setParameter("classId", classId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

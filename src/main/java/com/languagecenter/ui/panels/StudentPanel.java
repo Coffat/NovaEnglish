@@ -6,7 +6,6 @@ import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -90,15 +89,28 @@ public class StudentPanel extends JPanel {
         table.getColumnModel().getColumn(8).setCellRenderer(new StatusBadgeRenderer());
         table.getColumnModel().getColumn(9).setCellRenderer(new ActionRenderer());
 
-        // Action Renderer Mouse Events
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row = e.getY() / table.getRowHeight();
+                int row = table.rowAtPoint(e.getPoint());
 
-                if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
-                    if (table.getColumnName(column).equals("Actions")) {
+                if (row < table.getRowCount() && row >= 0) {
+                    // Double click check
+                    if (e.getClickCount() == 2) {
+                        int modelRow = table.convertRowIndexToModel(row);
+                        int studentId = (int) model.getValueAt(modelRow, 0);
+                        Student student = studentDAO.getStudentById(studentId);
+                        if (student != null) {
+                            new com.languagecenter.ui.dialogs.StudentProfileDialog(
+                                SwingUtilities.getWindowAncestor(StudentPanel.this), student, mainFrame, (updatedStudent) -> {
+                                    loadData();
+                                }).setVisible(true);
+                        }
+                        return;
+                    }
+
+                    if (column >= 0 && table.getColumnName(column).equals("Actions")) {
                         int modelRow = table.convertRowIndexToModel(row);
                         int studentId = (int) model.getValueAt(modelRow, 0);
 
