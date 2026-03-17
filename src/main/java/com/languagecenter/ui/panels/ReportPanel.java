@@ -2,13 +2,17 @@ package com.languagecenter.ui.panels;
 
 import com.languagecenter.dao.ReportDAO;
 import com.formdev.flatlaf.FlatClientProperties;
+import net.miginfocom.swing.MigLayout;
 
 import org.knowm.xchart.*;
 import org.knowm.xchart.style.Styler;
+import org.knowm.xchart.internal.chartpart.Chart;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.Rectangle;
+import java.awt.Dimension;
 
 public class ReportPanel extends JPanel {
 
@@ -22,6 +26,23 @@ public class ReportPanel extends JPanel {
     private JLabel lblTotalRevenue;
 
     private JPanel chartsContainer;
+    
+    // Internal class for scrollable content that tracks viewport width
+    private class ScrollablePanel extends JPanel implements Scrollable {
+        public ScrollablePanel(LayoutManager layout) {
+            super(layout);
+        }
+        @Override
+        public Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override
+        public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) { return 16; }
+        @Override
+        public int getScrollableBlockIncrement(Rectangle visibleRect, int orientation, int direction) { return 80; }
+        @Override
+        public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override
+        public boolean getScrollableTracksViewportHeight() { return false; }
+    }
 
     public ReportPanel() {
         initUI();
@@ -45,8 +66,12 @@ public class ReportPanel extends JPanel {
         
         add(headerPanel, BorderLayout.NORTH);
 
-        // Cards Panel using Grid layout
-        JPanel cardsContainer = new JPanel(new GridLayout(2, 3, 20, 20));
+        // Main Content in a single scrollable container
+        ScrollablePanel mainScrollContent = new ScrollablePanel(new MigLayout("wrap 1, insets 0, gap 20, fillx", "[grow, fill]"));
+        mainScrollContent.setOpaque(false);
+
+        // Cards Panel - Responsive flow wrap
+        JPanel cardsContainer = new JPanel(new MigLayout("wrap, insets 0, gap 20, fillx", "[grow, fill]"));
         cardsContainer.setOpaque(false);
 
         // Initialize Labels
@@ -56,24 +81,31 @@ public class ReportPanel extends JPanel {
         lblActiveClasses = createValueLabel();
         lblTotalRevenue = createValueLabel();
 
-        // Add Cards
-        cardsContainer.add(createCard("Total Students", lblTotalStudents, new Color(0xEFF6FF), new Color(0x3B82F6), "👥"));
-        cardsContainer.add(createCard("Total Teachers", lblTotalTeachers, new Color(0xF5F3FF), new Color(0x8B5CF6), "👨‍🏫"));
-        cardsContainer.add(createCard("Total Courses", lblTotalCourses, new Color(0xECFCCB), new Color(0x65A30D), "📚"));
-        cardsContainer.add(createCard("Active Classes", lblActiveClasses, new Color(0xFEF2F2), new Color(0xEF4444), "🏫"));
-        cardsContainer.add(createCard("Total Revenue (VNĐ)", lblTotalRevenue, new Color(0xDCFCE7), new Color(0x22C55E), "💰"));
+        // Add Cards with responsive width constraints
+        String cardConstraints = "growx, width 200:300:, split 3";
+        cardsContainer.add(createCard("Total Students", lblTotalStudents, new Color(0xEFF6FF), new Color(0x3B82F6), "👥"), cardConstraints);
+        cardsContainer.add(createCard("Total Teachers", lblTotalTeachers, new Color(0xF5F3FF), new Color(0x8B5CF6), "👨‍🏫"), cardConstraints);
+        cardsContainer.add(createCard("Total Courses", lblTotalCourses, new Color(0xECFCCB), new Color(0x65A30D), "📚"), "growx, width 200:300:, wrap");
+        
+        cardsContainer.add(createCard("Active Classes", lblActiveClasses, new Color(0xFEF2F2), new Color(0xEF4444), "🏫"), "growx, width 200:300:, split 2");
+        cardsContainer.add(createCard("Total Revenue (VNĐ)", lblTotalRevenue, new Color(0xDCFCE7), new Color(0x22C55E), "💰"), "growx, width 200:300:, wrap");
 
-        // Wrapper to keep cards at top
-        JPanel centerWrapper = new JPanel(new BorderLayout(0, 20));
-        centerWrapper.setOpaque(false);
-        centerWrapper.add(cardsContainer, BorderLayout.NORTH);
+        mainScrollContent.add(cardsContainer, "growx, wrap");
 
-        // Charts Panel
-        chartsContainer = new JPanel(new GridLayout(1, 2, 20, 20));
+        // Charts Panel - Responsive flow wrap
+        chartsContainer = new JPanel(new MigLayout("wrap, insets 0, gap 20, fillx", "[grow, fill]"));
         chartsContainer.setOpaque(false);
-        centerWrapper.add(chartsContainer, BorderLayout.CENTER);
+        mainScrollContent.add(chartsContainer, "growx");
 
-        add(centerWrapper, BorderLayout.CENTER);
+        // Wrap everything in a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(mainScrollContent);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        add(scrollPane, BorderLayout.CENTER);
 
         // Load Initial Data
         refreshData();
@@ -138,6 +170,10 @@ public class ReportPanel extends JPanel {
             java.math.BigDecimal revenue;
             java.util.List<Object[]> studentsByCourse;
             java.util.List<Object[]> revenueByMonth;
+            java.util.List<Object[]> enrollmentStatus;
+            java.util.List<Object[]> registrationTrend;
+            java.util.List<Object[]> teacherLoad;
+            java.util.List<Object[]> classStatus;
 
             @Override
             protected Void doInBackground() {
@@ -148,6 +184,10 @@ public class ReportPanel extends JPanel {
                 revenue = reportDAO.getTotalRevenue();
                 studentsByCourse = reportDAO.getStudentsByCourse();
                 revenueByMonth = reportDAO.getRevenueByMonth();
+                enrollmentStatus = reportDAO.getEnrollmentStatusDistribution();
+                registrationTrend = reportDAO.getStudentRegistrationTrend();
+                teacherLoad = reportDAO.getTeacherLoad();
+                classStatus = reportDAO.getClassStatusDistribution();
                 return null;
             }
 
@@ -162,50 +202,93 @@ public class ReportPanel extends JPanel {
                 } else {
                     lblTotalRevenue.setText(com.languagecenter.util.CurrencyUtil.formatVND(java.math.BigDecimal.ZERO));
                 }
-                updateCharts(studentsByCourse, revenueByMonth);
+                updateCharts(studentsByCourse, revenueByMonth, enrollmentStatus, registrationTrend, teacherLoad, classStatus);
             }
         };
         worker.execute();
     }
 
-    private void updateCharts(java.util.List<Object[]> studentsByCourse, java.util.List<Object[]> revenueByMonth) {
+    private void updateCharts(
+            java.util.List<Object[]> studentsByCourse, 
+            java.util.List<Object[]> revenueByMonth,
+            java.util.List<Object[]> enrollmentStatus,
+            java.util.List<Object[]> registrationTrend,
+            java.util.List<Object[]> teacherLoad,
+            java.util.List<Object[]> classStatus) {
+        
         chartsContainer.removeAll();
+        
+        try {
+            String chartConstraints = "growx, width 300:450:, split 2";
+            
+            // 1. Pie Chart: Students by Course
+            chartsContainer.add(createXChartPanel(createPieChart("Students by Course", studentsByCourse)), chartConstraints);
 
-        // 1. Pie Chart for Students by Course
-        PieChart pieChart = new PieChartBuilder().width(400).height(300).title("Students by Course").build();
-        pieChart.getStyler().setLegendVisible(true);
-        pieChart.getStyler().setLegendPosition(Styler.LegendPosition.InsideNW);
-        pieChart.getStyler().setChartBackgroundColor(Color.WHITE);
-        pieChart.getStyler().setPlotBorderVisible(false);
+            // 2. Bar Chart: Revenue by Month
+            chartsContainer.add(createXChartPanel(createBarChart("Revenue Trend (VNĐ)", "Month", "Revenue", revenueByMonth, "#3B82F6")), "growx, width 300:450:, wrap");
 
-        boolean hasPieData = false;
-        for (Object[] row : studentsByCourse) {
+            // 3. Bar Chart: Student Registration Trend
+            chartsContainer.add(createXChartPanel(createBarChart("New Student Registrations", "Month", "Count", registrationTrend, "#F59E0B")), chartConstraints);
+
+            // 4. Bar Chart: Teacher Workload
+            chartsContainer.add(createXChartPanel(createBarChart("Classes Per Teacher", "Teacher", "Classes", teacherLoad, "#8B5CF6")), "growx, width 300:450:, wrap");
+
+            // 5. Pie Chart: Enrollment Status Distribution
+            chartsContainer.add(createXChartPanel(createPieChart("Enrollment Status", enrollmentStatus)), chartConstraints);
+
+            // 6. Pie Chart: Class Status Distribution
+            chartsContainer.add(createXChartPanel(createPieChart("Class Status Distribution", classStatus)), "growx, width 300:450:, wrap");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        chartsContainer.revalidate();
+        chartsContainer.repaint();
+    }
+
+    private JPanel createXChartPanel(Chart<?, ?> chart) {
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        XChartPanel panel = new XChartPanel(chart);
+        panel.putClientProperty(FlatClientProperties.STYLE, "arc: 40");
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                new com.formdev.flatlaf.ui.FlatLineBorder(new Insets(1, 1, 1, 1), new Color(0xE2E8F0), 1, 40),
+                new EmptyBorder(15, 15, 15, 15)
+        ));
+        panel.setBackground(Color.WHITE);
+        return panel;
+    }
+
+    private PieChart createPieChart(String title, java.util.List<Object[]> data) {
+        PieChart chart = new PieChartBuilder().width(300).height(250).title(title).build();
+        chart.getStyler().setLegendVisible(true);
+        chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotBorderVisible(false);
+        
+        boolean hasData = false;
+        for (Object[] row : data) {
             if (row[0] != null && row[1] != null) {
-                pieChart.addSeries(row[0].toString(), ((Number) row[1]).intValue());
-                hasPieData = true;
+                chart.addSeries(row[0].toString(), ((Number) row[1]).intValue());
+                hasData = true;
             }
         }
-        if (!hasPieData) {
-            pieChart.addSeries("No Data", 1);
-        }
+        if (!hasData) chart.addSeries("No Data", 1);
+        return chart;
+    }
 
-        XChartPanel<PieChart> piePanel = new XChartPanel<>(pieChart);
-        piePanel.putClientProperty(FlatClientProperties.STYLE, "arc: 40");
-        piePanel.setBorder(BorderFactory.createCompoundBorder(
-                new com.formdev.flatlaf.ui.FlatLineBorder(new Insets(1, 1, 1, 1), new Color(0xE2E8F0), 1, 40),
-                new EmptyBorder(10, 10, 10, 10)
-        ));
-
-        // 2. Bar Chart for Revenue by Month
-        CategoryChart barChart = new CategoryChartBuilder().width(400).height(300).title("Revenue by Month (VNĐ)").xAxisTitle("Month").yAxisTitle("Revenue").build();
-        barChart.getStyler().setLegendVisible(false);
-        barChart.getStyler().setChartBackgroundColor(Color.WHITE);
-        barChart.getStyler().setPlotGridLinesVisible(false);
-        barChart.getStyler().setPlotBorderVisible(false);
+    private CategoryChart createBarChart(String title, String xAxis, String yAxis, java.util.List<Object[]> data, String colorHex) {
+        CategoryChart chart = new CategoryChartBuilder().width(300).height(250).title(title)
+                .xAxisTitle(xAxis).yAxisTitle(yAxis).build();
+        
+        chart.getStyler().setLegendVisible(false);
+        chart.getStyler().setChartBackgroundColor(Color.WHITE);
+        chart.getStyler().setPlotGridLinesVisible(false);
+        chart.getStyler().setPlotBorderVisible(false);
+        chart.getStyler().setSeriesColors(new Color[] { Color.decode(colorHex) });
 
         java.util.List<String> xData = new java.util.ArrayList<>();
         java.util.List<Number> yData = new java.util.ArrayList<>();
-        for (Object[] row : revenueByMonth) {
+        for (Object[] row : data) {
             if (row[0] != null && row[1] != null) {
                 xData.add(row[0].toString());
                 yData.add((Number) row[1]);
@@ -217,19 +300,7 @@ public class ReportPanel extends JPanel {
             yData.add(0);
         }
         
-        barChart.addSeries("Revenue", xData, yData);
-
-        XChartPanel<CategoryChart> barPanel = new XChartPanel<>(barChart);
-        barPanel.putClientProperty(FlatClientProperties.STYLE, "arc: 40");
-        barPanel.setBorder(BorderFactory.createCompoundBorder(
-                new com.formdev.flatlaf.ui.FlatLineBorder(new Insets(1, 1, 1, 1), new Color(0xE2E8F0), 1, 40),
-                new EmptyBorder(10, 10, 10, 10)
-        ));
-
-        chartsContainer.add(piePanel);
-        chartsContainer.add(barPanel);
-        
-        chartsContainer.revalidate();
-        chartsContainer.repaint();
+        chart.addSeries("Data", xData, yData);
+        return chart;
     }
 }

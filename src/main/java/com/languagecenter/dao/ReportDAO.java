@@ -80,11 +80,49 @@ public class ReportDAO {
 
     public java.util.List<Object[]> getRevenueByMonth() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            // Native query for MySQL to group by month
             return session.createNativeQuery(
                 "SELECT DATE_FORMAT(PaymentDate, '%Y-%m') as month, SUM(Amount) as total " +
                 "FROM Payment WHERE Status IN ('Completed', 'Paid') " +
                 "GROUP BY month ORDER BY month", Object[].class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public java.util.List<Object[]> getEnrollmentStatusDistribution() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("SELECT e.status, COUNT(e.id) FROM Enrollment e GROUP BY e.status", Object[].class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public java.util.List<Object[]> getStudentRegistrationTrend() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createNativeQuery(
+                "SELECT DATE_FORMAT(RegistrationDate, '%Y-%m') as month, COUNT(StudentID) as count " +
+                "FROM Student " +
+                "GROUP BY month ORDER BY month LIMIT 12", Object[].class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public java.util.List<Object[]> getTeacherLoad() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("SELECT t.fullName, COUNT(c.id) FROM CourseClass c JOIN c.teacher t GROUP BY t.id", Object[].class).list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new java.util.ArrayList<>();
+        }
+    }
+
+    public java.util.List<Object[]> getClassStatusDistribution() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("SELECT c.status, COUNT(c.id) FROM CourseClass c GROUP BY c.status", Object[].class).list();
         } catch (Exception e) {
             e.printStackTrace();
             return new java.util.ArrayList<>();

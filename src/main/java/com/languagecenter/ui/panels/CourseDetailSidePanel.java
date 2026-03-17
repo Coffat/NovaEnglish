@@ -145,7 +145,7 @@ public class CourseDetailSidePanel extends JPanel {
         add(createLabel("Status"));
         cbStatus = new JComboBox<>(new String[] { "Active", "Inactive" });
         cbStatus.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC");
+                "focusColor: #6366F1; background: #F8FAFC");
         cbStatus.setPreferredSize(new Dimension(-1, 40));
         add(cbStatus, "growx, gapbottom 30");
 
@@ -175,7 +175,7 @@ public class CourseDetailSidePanel extends JPanel {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
         return tf;
     }

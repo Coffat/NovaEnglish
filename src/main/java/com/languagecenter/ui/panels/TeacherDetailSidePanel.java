@@ -152,7 +152,7 @@ public class TeacherDetailSidePanel extends JPanel {
         JTextField hireTf = dpHireDate.getComponentDateTextField();
         hireTf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         hireTf.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         
         JButton hireBtn = dpHireDate.getComponentToggleCalendarButton();
         hireBtn.putClientProperty(FlatClientProperties.STYLE,
@@ -177,7 +177,7 @@ public class TeacherDetailSidePanel extends JPanel {
         add(createLabel("Status"));
         cbStatus = new JComboBox<>(new String[] { "Active", "Inactive" });
         cbStatus.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC");
+                "focusColor: #6366F1; background: #F8FAFC");
         cbStatus.setPreferredSize(new Dimension(-1, 40));
         add(cbStatus, "growx, gapbottom 30");
 
@@ -208,7 +208,7 @@ public class TeacherDetailSidePanel extends JPanel {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
         return tf;
     }

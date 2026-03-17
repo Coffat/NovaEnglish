@@ -366,13 +366,13 @@ public class ScheduleDetailSidePanel extends JPanel {
     private void styleTextField(JTextField tf, String placeholder) {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
-        tf.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+        tf.putClientProperty(FlatClientProperties.STYLE, "focusColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 44));
         tf.setMinimumSize(new Dimension(10, 44));
     }
 
     private void styleComboBox(JComboBox<?> cb) {
-        cb.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC");
+        cb.putClientProperty(FlatClientProperties.STYLE, "focusColor: #6366F1; background: #F8FAFC");
         cb.setPreferredSize(new Dimension(-1, 40));
         cb.setMinimumSize(new Dimension(10, 40));
     }

@@ -171,9 +171,17 @@ public class EnrollmentDAO {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
+            
+            // First, nullify the enrollment reference in Payment history
+            session.createQuery("UPDATE Payment p SET p.enrollment = NULL WHERE p.student.id = :studentId")
+                    .setParameter("studentId", studentId)
+                    .executeUpdate();
+            
+            // Then delete the enrollments
             session.createQuery("DELETE FROM Enrollment e WHERE e.student.id = :studentId")
                     .setParameter("studentId", studentId)
                     .executeUpdate();
+            
             transaction.commit();
         } catch (Exception e) {
             if (transaction != null) {

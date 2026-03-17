@@ -267,7 +267,7 @@ public class CourseClassDetailSidePanel extends JPanel {
 
         add(createLabel("Schedule Pattern"));
         cbSchedulePattern = new JComboBox<>(new String[] { "2-4-6", "3-5-7" });
-        cbSchedulePattern.putClientProperty(FlatClientProperties.STYLE, "focusedBorderColor: #6366F1; background: #F8FAFC");
+        cbSchedulePattern.putClientProperty(FlatClientProperties.STYLE, "focusColor: #6366F1; background: #F8FAFC");
         cbSchedulePattern.setPreferredSize(new Dimension(-1, 40));
         cbSchedulePattern.addActionListener(e -> updateEndDate());
         add(cbSchedulePattern, "growx, gapbottom 10");
@@ -325,14 +325,14 @@ public class CourseClassDetailSidePanel extends JPanel {
         tf.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, placeholder);
         tf.putClientProperty(FlatClientProperties.COMPONENT_ROUND_RECT, true);
         tf.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
+                "focusColor: #6366F1; background: #F8FAFC; margin: 5, 10, 5, 10");
         tf.setPreferredSize(new Dimension(-1, 40));
         return tf;
     }
 
     private void styleComboBox(JComboBox<?> cb) {
         cb.putClientProperty(FlatClientProperties.STYLE,
-                "focusedBorderColor: #6366F1; background: #F8FAFC");
+                "focusColor: #6366F1; background: #F8FAFC");
         cb.setPreferredSize(new Dimension(-1, 40));
     }
 

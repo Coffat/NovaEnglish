@@ -47,7 +47,7 @@ public class MainFrame extends JFrame {
 
     private Map<String, JButton> navButtons = new HashMap<>();
 
-    private JPanel mainBodyPanel;
+    private JLayeredPane mainBodyPanel;
     private JTextField searchField;
 
     private boolean isSidePanelVisible = false;
@@ -100,7 +100,9 @@ public class MainFrame extends JFrame {
         rightSideContainer.add(createScrollable(rightClassSidePanel), "Class");
         rightSideContainer.add(createScrollable(rightScheduleSidePanel), "Schedule");
         rightSideContainer.add(createScrollable(rightPaymentSidePanel), "Payment");
-        rightSideContainer.setOpaque(false);
+        rightSideContainer.setOpaque(true);
+        rightSideContainer.setBackground(Color.WHITE);
+        rightSideContainer.setVisible(false);
 
         buildSidebar();
         buildCenterArea();
@@ -344,11 +346,23 @@ public class MainFrame extends JFrame {
             cardContainer.add(createSubPanel(item), item);
         }
 
-        mainBodyPanel = new JPanel(new MigLayout("fill, insets 0, gap 0", "[grow]0[0!]", "[grow]"));
-        mainBodyPanel.setMinimumSize(new Dimension(0, 0));
+        mainBodyPanel = new JLayeredPane();
         mainBodyPanel.setOpaque(false);
-        mainBodyPanel.add(cardContainer, "grow");
-        mainBodyPanel.add(rightSideContainer, "grow, pushx, hidemode 3");
+        
+        mainBodyPanel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                cardContainer.setBounds(0, 0, mainBodyPanel.getWidth(), mainBodyPanel.getHeight());
+                int x = mainBodyPanel.getWidth() - currentSideWidth;
+                rightSideContainer.setBounds(x, 0, MAX_SIDE_WIDTH, mainBodyPanel.getHeight());
+            }
+        });
+
+        // Add shadow/border to the side container for better overlay visibility
+        rightSideContainer.setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, new Color(0, 0, 0, 0.15f)));
+
+        mainBodyPanel.add(cardContainer, JLayeredPane.DEFAULT_LAYER);
+        mainBodyPanel.add(rightSideContainer, JLayeredPane.PALETTE_LAYER);
 
         centerContentPanel.add(mainBodyPanel, "grow, push");
     }
@@ -401,6 +415,10 @@ public class MainFrame extends JFrame {
             sidePanelTimer.stop();
         }
 
+        if (show) {
+            rightSideContainer.setVisible(true);
+        }
+
         // Animation step size (positive for show, negative for hide)
         final int step = show ? 35 : -35; 
 
@@ -424,11 +442,14 @@ public class MainFrame extends JFrame {
 
                 if (reached) {
                     sidePanelTimer.stop();
+                    if (!show) {
+                        rightSideContainer.setVisible(false);
+                    }
                 }
 
-                String colConstraints = "[grow]0[" + currentSideWidth + "!]";
-                ((MigLayout) mainBodyPanel.getLayout()).setColumnConstraints(colConstraints);
-                mainBodyPanel.revalidate();
+                int x = mainBodyPanel.getWidth() - currentSideWidth;
+                rightSideContainer.setBounds(x, 0, MAX_SIDE_WIDTH, mainBodyPanel.getHeight());
+                mainBodyPanel.repaint();
             }
         });
         sidePanelTimer.start();
