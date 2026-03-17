@@ -103,6 +103,11 @@ public class StudentDetailSidePanel extends JPanel {
                     StudentDAO.getInstance().saveStudentWithPayments(currentStudent, selectedCourses);
                 } else {
                     StudentDAO.getInstance().updateStudent(currentStudent);
+                    
+                    // If student becomes Inactive, remove from all classes
+                    if ("Inactive".equalsIgnoreCase(currentStudent.getStatus())) {
+                        com.languagecenter.dao.EnrollmentDAO.getInstance().deleteEnrollmentsByStudentId(currentStudent.getId());
+                    }
                 }
                 
                 if (onSaveCallback != null) {

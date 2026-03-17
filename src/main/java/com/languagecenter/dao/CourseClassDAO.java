@@ -83,4 +83,15 @@ public class CourseClassDAO {
             return null;
         }
     }
+
+    public List<CourseClass> getClassesByCourseId(int courseId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM CourseClass WHERE course.id = :courseId", CourseClass.class)
+                    .setParameter("courseId", courseId)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
 }

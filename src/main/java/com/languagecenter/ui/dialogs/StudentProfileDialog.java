@@ -24,16 +24,26 @@ public class StudentProfileDialog extends JDialog {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
 
     public StudentProfileDialog(Window parent, Student student, com.languagecenter.ui.MainFrame mainFrame, java.util.function.Consumer<Student> onSaveCallback) {
-        super(parent, "Student Profile", ModalityType.APPLICATION_MODAL);
+        super(parent, "Student Profile", ModalityType.MODELESS); // Non-modal to allow clicking outside
         this.student = student;
         this.mainFrame = mainFrame;
         this.onSaveCallback = onSaveCallback;
         initUI();
+        
+        // Auto-close when clicking outside (on focus loss)
+        this.addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            @Override
+            public void windowGainedFocus(java.awt.event.WindowEvent e) {}
+            @Override
+            public void windowLostFocus(java.awt.event.WindowEvent e) {
+                dispose();
+            }
+        });
     }
 
     private void initUI() {
         setUndecorated(true);
-        setSize(520, 720); // Slightly taller for more content
+        setSize(950, 650); // Horizontal layout
         setLocationRelativeTo(getParent());
         setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 30, 30));
 
@@ -127,30 +137,40 @@ public class StudentProfileDialog extends JDialog {
             statusPill.getBackground(), 0, 999));
         statusPill.add(lblStatus);
         
-        contentPanel.add(statusPill, "left, gapbottom 10, wrap");
+        contentPanel.add(statusPill, "left, wrap");
 
-        // Info Cards Container
-        JPanel cardsContainer = new JPanel(new MigLayout("insets 0, gap 15, fillx", "[grow]", "[]"));
-        cardsContainer.setOpaque(false);
+        // Two-column layout for horizontal view
+        JPanel columnsPanel = new JPanel(new MigLayout("insets 0, gap 20, fill", "[350!] [grow]", "[grow]"));
+        columnsPanel.setOpaque(false);
 
-        cardsContainer.add(createInfoCard("Personal Details", 
+        // Left Column: Info Cards
+        JPanel leftColumn = new JPanel(new MigLayout("insets 0, gap 15, fillx", "[grow]", "[]"));
+        leftColumn.setOpaque(false);
+
+        leftColumn.add(createInfoCard("Personal Details", 
             new String[][] {
                 {"Gender", student.getGender()},
                 {"Date of Birth", student.getDateOfBirth() != null ? student.getDateOfBirth().format(formatter) : "N/A"},
                 {"Joined Date", student.getRegistrationDate() != null ? student.getRegistrationDate().format(formatter) : "N/A"}
             }, new Color(0xEFF6FF)), "growx, wrap");
 
-        cardsContainer.add(createAcademicHistoryCard(), "growx, wrap");
-
-        cardsContainer.add(createInfoCard("Contact Information", 
+        leftColumn.add(createInfoCard("Contact Information", 
             new String[][] {
                 {"Phone", student.getPhone()},
                 {"Email", student.getEmail()},
                 {"Address", student.getAddress()}
             }, new Color(0xF5F3FF)), "growx, wrap");
 
-        // Wrap cardsContainer in a JScrollPane
-        JScrollPane scrollPane = new JScrollPane(cardsContainer);
+        // Right Column: Academic History (usually longer)
+        JPanel rightColumn = new JPanel(new MigLayout("insets 0, gap 15, fill", "[grow]", "[grow]"));
+        rightColumn.setOpaque(false);
+        rightColumn.add(createAcademicHistoryCard(), "grow, push");
+
+        columnsPanel.add(leftColumn, "top");
+        columnsPanel.add(rightColumn, "grow, push");
+
+        // Wrap columnsPanel in a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(columnsPanel);
         scrollPane.setBorder(null);
         scrollPane.setOpaque(false);
         scrollPane.getViewport().setOpaque(false);

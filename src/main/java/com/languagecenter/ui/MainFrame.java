@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.AWTEventListener;
+import java.awt.event.MouseEvent;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,6 +109,37 @@ public class MainFrame extends JFrame {
         add(centerContentPanel, "grow, push, cell 1 0");
 
         switchPanel("Students");
+        setupClickOutsideToClose();
+    }
+
+    private void setupClickOutsideToClose() {
+        Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
+            @Override
+            public void eventDispatched(AWTEvent event) {
+                if (event instanceof MouseEvent mouseEvent && mouseEvent.getID() == MouseEvent.MOUSE_PRESSED) {
+                    if (isSidePanelVisible && isShowing()) {
+                        Component source = mouseEvent.getComponent();
+                        if (source == null) return;
+
+                        // Only handle if the event belongs to this frame or its descendants
+                        Window window = SwingUtilities.getWindowAncestor(source);
+                        if (window != MainFrame.this) return;
+
+                        // Check if click is inside the right side panel container
+                        if (!SwingUtilities.isDescendingFrom(source, rightSideContainer)) {
+                            // Use invokeLater to avoid race conditions with components that might want to keep or change the panel
+                            SwingUtilities.invokeLater(() -> {
+                                // If the side panel is still visible and the click wasn't on something that opened it
+                                // (If a button opens a panel, it will call toggleSidePanel(true) which overrides this)
+                                if (isSidePanelVisible) {
+                                    toggleSidePanel(false);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }, AWTEvent.MOUSE_EVENT_MASK);
     }
 
     private void setupGlobalStyles() {
@@ -325,6 +358,9 @@ public class MainFrame extends JFrame {
     }
 
     private void switchPanel(String name) {
+        if (searchField != null) {
+            searchField.setText("");
+        }
         toggleSidePanel(false); // Hide side panel when switching views
         cardLayout.show(cardContainer, name);
 
@@ -352,23 +388,41 @@ public class MainFrame extends JFrame {
     }
 
     public void toggleSidePanel(boolean show) {
-        if (isSidePanelVisible == show)
+        int targetWidth = show ? MAX_SIDE_WIDTH : 0;
+        
+        // If already at exactly where we want to be and not currently animating, nothing to do
+        if (isSidePanelVisible == show && currentSideWidth == targetWidth && (sidePanelTimer == null || !sidePanelTimer.isRunning())) {
             return;
+        }
+
         isSidePanelVisible = show;
 
         if (sidePanelTimer != null && sidePanelTimer.isRunning()) {
             sidePanelTimer.stop();
         }
 
-        int targetWidth = show ? MAX_SIDE_WIDTH : 0;
-        int step = show ? 30 : -30;
+        // Animation step size (positive for show, negative for hide)
+        final int step = show ? 35 : -35; 
 
-        sidePanelTimer = new Timer(15, new ActionListener() {
+        sidePanelTimer = new Timer(10, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 currentSideWidth += step;
-                if ((show && currentSideWidth >= targetWidth) || (!show && currentSideWidth <= 0)) {
-                    currentSideWidth = targetWidth;
+                
+                boolean reached = false;
+                if (show) {
+                    if (currentSideWidth >= targetWidth) {
+                        currentSideWidth = targetWidth;
+                        reached = true;
+                    }
+                } else {
+                    if (currentSideWidth <= targetWidth) {
+                        currentSideWidth = targetWidth;
+                        reached = true;
+                    }
+                }
+
+                if (reached) {
                     sidePanelTimer.stop();
                 }
 

@@ -32,11 +32,16 @@ public class CourseClassPanel extends JPanel {
 
     public void bindSearchField(JTextField searchField) {
         Timer timer = new Timer(300, e -> {
-            String text = searchField.getText();
-            if (text.trim().isEmpty()) {
+            String text = searchField.getText().trim();
+            if (text.isEmpty()) {
                 sorter.setRowFilter(null);
             } else {
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text)));
+                String[] words = text.split("\\s+");
+                java.util.List<RowFilter<Object, Object>> filters = new java.util.ArrayList<>();
+                for (String word : words) {
+                    filters.add(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(word)));
+                }
+                sorter.setRowFilter(RowFilter.andFilter(filters));
             }
         });
         timer.setRepeats(false);
@@ -88,10 +93,24 @@ public class CourseClassPanel extends JPanel {
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int column = table.getColumnModel().getColumnIndexAtX(e.getX());
-                int row = e.getY() / table.getRowHeight();
+                int column = table.columnAtPoint(e.getPoint());
+                int row = table.rowAtPoint(e.getPoint());
 
-                if (row < table.getRowCount() && row >= 0 && column < table.getColumnCount() && column >= 0) {
+                if (row < table.getRowCount() && row >= 0 && column >= 0) {
+                    // Double click check
+                    if (e.getClickCount() == 2) {
+                        int modelRow = table.convertRowIndexToModel(row);
+                        int classId = (int) model.getValueAt(modelRow, 0);
+                        CourseClass courseClass = classDAO.getClassById(classId);
+                        if (courseClass != null) {
+                            new com.languagecenter.ui.dialogs.ClassProfileDialog(
+                                SwingUtilities.getWindowAncestor(CourseClassPanel.this), courseClass, mainFrame, (updatedClass) -> {
+                                    loadData();
+                                }).setVisible(true);
+                        }
+                        return;
+                    }
+
                     if (table.getColumnName(column).equals("Actions")) {
                         int modelRow = table.convertRowIndexToModel(row);
                         int classId = (int) model.getValueAt(modelRow, 0);

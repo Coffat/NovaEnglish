@@ -166,4 +166,20 @@ public class EnrollmentDAO {
             return new ArrayList<>();
         }
     }
+
+    public void deleteEnrollmentsByStudentId(int studentId) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.createQuery("DELETE FROM Enrollment e WHERE e.student.id = :studentId")
+                    .setParameter("studentId", studentId)
+                    .executeUpdate();
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+        }
+    }
 }

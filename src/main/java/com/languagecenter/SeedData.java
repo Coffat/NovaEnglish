@@ -60,7 +60,7 @@ public class SeedData {
             CourseClass cl3 = createClass(session, "IELTS-2025-WINTER", courses.get(0), teachers.get(0), LocalDate.of(2025, 10, 1), "2-4-6", LocalTime.of(8, 0), LocalTime.of(10, 0), "Completed", 12);
             
             // Scheduled (Future) classes
-            CourseClass cl4 = createClass(session, "BUS-ENG-SPRING", courses.get(2), teachers.get(2), LocalDate.of(2026, 4, 1), "2-4-6", LocalTime.of(18, 0), LocalTime.of(20, 0), "Scheduled", 15);
+            CourseClass cl4 = createClass(session, "BUS-ENG-SPRING", courses.get(2), teachers.get(2), LocalDate.of(2026, 4, 1), "2-4-6", LocalTime.of(18, 0), LocalTime.of(20, 0), "Opening", 15);
 
             System.out.println("Adding students, enrollments, payments and schedules...");
             String[] firstNames = {"Minh", "Thu", "Tuấn", "Linh", "Hùng", "Lan", "Nam", "Mai", "Anh", "Đức"};

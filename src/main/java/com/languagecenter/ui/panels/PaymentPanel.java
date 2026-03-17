@@ -32,11 +32,16 @@ public class PaymentPanel extends JPanel {
 
     public void bindSearchField(JTextField searchField) {
         Timer timer = new Timer(300, e -> {
-            String text = searchField.getText();
-            if (text.trim().isEmpty()) {
+            String text = searchField.getText().trim();
+            if (text.isEmpty()) {
                 sorter.setRowFilter(null);
             } else {
-                sorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text)));
+                String[] words = text.split("\\s+");
+                java.util.List<RowFilter<Object, Object>> filters = new java.util.ArrayList<>();
+                for (String word : words) {
+                    filters.add(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(word)));
+                }
+                sorter.setRowFilter(RowFilter.andFilter(filters));
             }
         });
         timer.setRepeats(false);
@@ -187,7 +192,7 @@ public class PaymentPanel extends JPanel {
                     p.getId(),
                     studentName,
                     enrollmentIdStr,
-                    p.getAmount() != null ? p.getAmount() : "0",
+                    com.languagecenter.util.CurrencyUtil.formatVND(p.getAmount()),
                     p.getPaymentDate() != null ? p.getPaymentDate().toString() : "",
                     p.getPaymentMethod() != null ? p.getPaymentMethod() : "",
                     p.getStatus() != null ? p.getStatus() : "",

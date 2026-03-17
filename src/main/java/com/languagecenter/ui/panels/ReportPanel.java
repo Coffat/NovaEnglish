@@ -61,7 +61,7 @@ public class ReportPanel extends JPanel {
         cardsContainer.add(createCard("Total Teachers", lblTotalTeachers, new Color(0xF5F3FF), new Color(0x8B5CF6), "👨‍🏫"));
         cardsContainer.add(createCard("Total Courses", lblTotalCourses, new Color(0xECFCCB), new Color(0x65A30D), "📚"));
         cardsContainer.add(createCard("Active Classes", lblActiveClasses, new Color(0xFEF2F2), new Color(0xEF4444), "🏫"));
-        cardsContainer.add(createCard("Total Revenue ($)", lblTotalRevenue, new Color(0xDCFCE7), new Color(0x22C55E), "💰"));
+        cardsContainer.add(createCard("Total Revenue (VNĐ)", lblTotalRevenue, new Color(0xDCFCE7), new Color(0x22C55E), "💰"));
 
         // Wrapper to keep cards at top
         JPanel centerWrapper = new JPanel(new BorderLayout(0, 20));
@@ -158,9 +158,9 @@ public class ReportPanel extends JPanel {
                 lblTotalCourses.setText(String.valueOf(courses));
                 lblActiveClasses.setText(String.valueOf(activeClasses));
                 if (revenue != null) {
-                    lblTotalRevenue.setText("$" + String.format("%.2f", revenue));
+                    lblTotalRevenue.setText(com.languagecenter.util.CurrencyUtil.formatVND(revenue));
                 } else {
-                    lblTotalRevenue.setText("$0.00");
+                    lblTotalRevenue.setText(com.languagecenter.util.CurrencyUtil.formatVND(java.math.BigDecimal.ZERO));
                 }
                 updateCharts(studentsByCourse, revenueByMonth);
             }
@@ -197,7 +197,7 @@ public class ReportPanel extends JPanel {
         ));
 
         // 2. Bar Chart for Revenue by Month
-        CategoryChart barChart = new CategoryChartBuilder().width(400).height(300).title("Revenue by Month ($)").xAxisTitle("Month").yAxisTitle("Revenue").build();
+        CategoryChart barChart = new CategoryChartBuilder().width(400).height(300).title("Revenue by Month (VNĐ)").xAxisTitle("Month").yAxisTitle("Revenue").build();
         barChart.getStyler().setLegendVisible(false);
         barChart.getStyler().setChartBackgroundColor(Color.WHITE);
         barChart.getStyler().setPlotGridLinesVisible(false);

@@ -198,7 +198,7 @@ public class PaymentDetailSidePanel extends JPanel {
         styleComboBox(cbEnrollment);
 
         tfAmount = new JTextField();
-        styleTextField(tfAmount, "e.g. 500.00");
+        styleTextField(tfAmount, "e.g. 2.000.000");
 
         tfDate = new JTextField();
         styleTextField(tfDate, "yyyy-MM-dd");

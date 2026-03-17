@@ -125,7 +125,7 @@ public class CourseDetailSidePanel extends JPanel {
         tfDescription = createTextField("Description");
         tfLevel = createTextField("e.g. Beginner");
         spDuration = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        tfFee = createTextField("e.g. 500.00");
+        tfFee = createTextField("e.g. 5.000.000");
 
         add(createLabel("Course Name"));
         add(tfName, "growx, gapbottom 15");
