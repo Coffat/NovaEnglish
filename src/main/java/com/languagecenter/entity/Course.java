@@ -30,6 +30,14 @@ public class Course {
     @Column(name = "Status")
     private String status;
 
+    public static final String[] LEVELS = {
+        "Beginner", 
+        "Elementary", 
+        "Intermediate", 
+        "Advanced", 
+        "IELTS Masterclass"
+    };
+
     public Course() {
     }
 

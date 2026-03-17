@@ -22,7 +22,7 @@ public class CourseDetailSidePanel extends JPanel {
 
     private JTextField tfName;
     private JTextField tfDescription;
-    private JTextField tfLevel;
+    private JComboBox<String> cbLevel;
     private JSpinner spDuration;
     private JTextField tfFee;
     private JComboBox<String> cbStatus;
@@ -39,14 +39,14 @@ public class CourseDetailSidePanel extends JPanel {
         if (course != null) {
             tfName.setText(course.getName());
             tfDescription.setText(course.getDescription());
-            tfLevel.setText(course.getLevel());
+            cbLevel.setSelectedItem(course.getLevel());
             spDuration.setValue(course.getDuration());
             tfFee.setText(course.getFee() != null ? course.getFee().toString() : "");
             cbStatus.setSelectedItem(course.getStatus());
         } else {
             tfName.setText("");
             tfDescription.setText("");
-            tfLevel.setText("");
+            cbLevel.setSelectedIndex(0);
             spDuration.setValue(1);
             tfFee.setText("");
             cbStatus.setSelectedIndex(0);
@@ -67,7 +67,7 @@ public class CourseDetailSidePanel extends JPanel {
 
             currentCourse.setName(name);
             currentCourse.setDescription(tfDescription.getText().trim());
-            currentCourse.setLevel(tfLevel.getText().trim());
+            currentCourse.setLevel((String) cbLevel.getSelectedItem());
             currentCourse.setDuration((Integer) spDuration.getValue());
             currentCourse.setStatus((String) cbStatus.getSelectedItem());
 
@@ -123,7 +123,9 @@ public class CourseDetailSidePanel extends JPanel {
         // Form fields
         tfName = createTextField("e.g. Basic English");
         tfDescription = createTextField("Description");
-        tfLevel = createTextField("e.g. Beginner");
+        cbLevel = new JComboBox<>(Course.LEVELS);
+        cbLevel.putClientProperty(FlatClientProperties.STYLE, "focusColor: #6366F1; background: #F8FAFC");
+        cbLevel.setPreferredSize(new Dimension(-1, 40));
         spDuration = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
         tfFee = createTextField("e.g. 5.000.000");
 
@@ -134,7 +136,7 @@ public class CourseDetailSidePanel extends JPanel {
         add(tfDescription, "growx, gapbottom 15");
 
         add(createLabel("Level"));
-        add(tfLevel, "growx, gapbottom 15");
+        add(cbLevel, "growx, gapbottom 15");
 
         add(createLabel("Duration (Weeks)"));
         add(spDuration, "growx, gapbottom 15");

@@ -18,7 +18,7 @@ import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-public class StudentPanel extends JPanel {
+public class StudentPanel extends JPanel implements RefreshablePanel {
 
     private TableRowSorter<DefaultTableModel> sorter;
     private StudentDAO studentDAO = StudentDAO.getInstance();
@@ -202,9 +202,14 @@ public class StudentPanel extends JPanel {
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
-                loadData();
+                refresh();
             }
         });
+    }
+
+    @Override
+    public void refresh() {
+        loadData();
     }
 
     private void loadData() {
@@ -214,6 +219,12 @@ public class StudentPanel extends JPanel {
         List<Student> students = studentDAO.getAllStudents();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (Student s : students) {
+            // Check if New Student (no enrollments)
+            String status = s.getStatus();
+            if ("Active".equalsIgnoreCase(status) && (s.getEnrollments() == null || s.getEnrollments().isEmpty())) {
+                status = "New";
+            }
+            
             Object[] row = new Object[] {
                     s.getId(),
                     s.getFullName(),
@@ -223,7 +234,7 @@ public class StudentPanel extends JPanel {
                     s.getEmail(),
                     s.getAddress(),
                     s.getRegistrationDate() != null ? s.getRegistrationDate().format(formatter) : "",
-                    s.getStatus(),
+                    status,
                     ""
             };
             model.addRow(row);
@@ -284,11 +295,15 @@ public class StudentPanel extends JPanel {
 
             if (value != null) {
                 pill.setVisible(true);
-                badge.setText(value.toString());
+                String status = value.toString();
+                badge.setText(status);
 
-                if (value.toString().equalsIgnoreCase("Active")) {
+                if (status.equalsIgnoreCase("Active")) {
                     badge.setForeground(new Color(0x15803D)); // Dark Green Text
                     pill.setBackground(new Color(0xDCFCE7)); // Light Green Bg
+                } else if (status.equalsIgnoreCase("New")) {
+                    badge.setForeground(new Color(0x6366F1)); // Indigo Text
+                    pill.setBackground(new Color(0xEEF2FF)); // Light Indigo Bg
                 } else {
                     badge.setForeground(new Color(0xB91C1C)); // Dark Red Text
                     pill.setBackground(new Color(0xFEE2E2)); // Light Red Bg

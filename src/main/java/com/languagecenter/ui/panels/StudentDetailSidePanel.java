@@ -53,12 +53,42 @@ public class StudentDetailSidePanel extends JPanel {
             tfEmail.setText(student.getEmail());
             tfPhone.setText(student.getPhone());
             cbStatus.setSelectedItem(student.getStatus());
+            
+            // Mark registered courses
+            java.util.Set<Integer> studentCourseIds = new java.util.HashSet<>();
+            if (student.getEnrollments() != null) {
+                for (com.languagecenter.entity.Enrollment e : student.getEnrollments()) {
+                    if (e.getCourseClass() != null && e.getCourseClass().getCourse() != null) {
+                        studentCourseIds.add(e.getCourseClass().getCourse().getId());
+                    }
+                }
+            }
+            
+            if (courseCheckboxPanel != null) {
+                for (Component comp : courseCheckboxPanel.getComponents()) {
+                    if (comp instanceof JCheckBox cb) {
+                        com.languagecenter.entity.Course course = (com.languagecenter.entity.Course) cb.getClientProperty("courseObject");
+                        if (course != null) {
+                            cb.setSelected(studentCourseIds.contains(course.getId()));
+                        }
+                    }
+                }
+            }
         } else {
             tfFullName.setText("");
             dpDob.setDate(null);
             tfEmail.setText("");
             tfPhone.setText("");
             cbStatus.setSelectedIndex(0);
+            
+            // Clear all checkboxes
+            if (courseCheckboxPanel != null) {
+                for (Component comp : courseCheckboxPanel.getComponents()) {
+                    if (comp instanceof JCheckBox cb) {
+                        cb.setSelected(false);
+                    }
+                }
+            }
         }
     }
 

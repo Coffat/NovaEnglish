@@ -17,7 +17,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
-public class PaymentPanel extends JPanel {
+public class PaymentPanel extends JPanel implements RefreshablePanel {
 
     private TableRowSorter<DefaultTableModel> sorter;
     private PaymentDAO paymentDAO = PaymentDAO.getInstance();
@@ -176,9 +176,14 @@ public class PaymentPanel extends JPanel {
         addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentShown(java.awt.event.ComponentEvent e) {
-                loadData();
+                refresh();
             }
         });
+    }
+
+    @Override
+    public void refresh() {
+        loadData();
     }
 
     private void loadData() {
