@@ -190,10 +190,13 @@ public class ClassEnrollmentsDialog extends JDialog {
         newEnrollment.setStatus("Enrolled");
         newEnrollment.setResult(0.0f);
 
-        enrollmentDAO.addEnrollment(newEnrollment);
-        JOptionPane.showMessageDialog(this, "Student added to class successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-
-        loadEnrollments();
-        loadAvailableStudents();
+        try {
+            enrollmentDAO.enrollStudent(newEnrollment);
+            JOptionPane.showMessageDialog(this, "Student added to class successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            loadEnrollments();
+            loadAvailableStudents();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Eligibility Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }

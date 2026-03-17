@@ -7,8 +7,12 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
 import java.util.function.Consumer;
 
 public class TeacherDetailSidePanel extends JPanel {
@@ -25,7 +29,7 @@ public class TeacherDetailSidePanel extends JPanel {
     private JTextField tfSpecialty;
     private JTextField tfEmail;
     private JTextField tfPhone;
-    private JTextField tfHireDate;
+    private DatePicker dpHireDate;
     private JComboBox<String> cbStatus;
 
     public TeacherDetailSidePanel(Runnable onCloseCallback) {
@@ -39,14 +43,14 @@ public class TeacherDetailSidePanel extends JPanel {
 
         if (teacher != null) {
             tfFullName.setText(teacher.getFullName());
-            tfHireDate.setText(teacher.getHireDate() != null ? teacher.getHireDate().toString() : "");
+            dpHireDate.setDate(teacher.getHireDate());
             tfEmail.setText(teacher.getEmail());
             tfPhone.setText(teacher.getPhone());
             tfSpecialty.setText(teacher.getSpecialty());
             cbStatus.setSelectedItem(teacher.getStatus());
         } else {
             tfFullName.setText("");
-            tfHireDate.setText("");
+            dpHireDate.setDate(null);
             tfEmail.setText("");
             tfPhone.setText("");
             tfSpecialty.setText("");
@@ -66,22 +70,18 @@ public class TeacherDetailSidePanel extends JPanel {
                 return;
             }
 
-            currentTeacher.setFullName(name);
-            currentTeacher.setEmail(tfEmail.getText().trim());
-            currentTeacher.setPhone(tfPhone.getText().trim());
-            currentTeacher.setSpecialty(tfSpecialty.getText().trim());
-            currentTeacher.setStatus((String) cbStatus.getSelectedItem());
-
-            try {
-                String dateText = tfHireDate.getText().trim();
-                if (!dateText.isEmpty()) {
-                    currentTeacher.setHireDate(LocalDate.parse(dateText));
-                }
-            } catch (DateTimeParseException e) {
-                JOptionPane.showMessageDialog(this, "Invalid Date format. Use yyyy-MM-dd.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+            String phone = tfPhone.getText().trim();
+            if (!phone.isEmpty() && !phone.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Phone number must be exactly 10 digits and start with 0.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
+            currentTeacher.setFullName(name);
+            currentTeacher.setEmail(tfEmail.getText().trim());
+            currentTeacher.setPhone(phone);
+            currentTeacher.setSpecialty(tfSpecialty.getText().trim());
+            currentTeacher.setStatus((String) cbStatus.getSelectedItem());
+            currentTeacher.setHireDate(dpHireDate.getDate());
 
             onSaveCallback.accept(currentTeacher);
         }
@@ -130,8 +130,29 @@ public class TeacherDetailSidePanel extends JPanel {
         tfFullName = createTextField("e.g. Samuel");
         tfSpecialty = createTextField("e.g. English");
         tfEmail = createTextField("teacher@example.com");
-        tfPhone = createTextField("+1 234 567 890");
-        tfHireDate = createTextField("2024-01-01");
+        tfPhone = createTextField("09xxxxxxxx");
+        
+        // Setup Phone filter
+        ((AbstractDocument) tfPhone.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String result = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (result.length() <= 10 && result.matches("\\d*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
+        DatePickerSettings dateSettings = new DatePickerSettings();
+        dateSettings.setFormatForDatesCommonEra("dd/MM/yyyy");
+        dateSettings.setAllowKeyboardEditing(true);
+        dpHireDate = new DatePicker(dateSettings);
+        dpHireDate.setBackground(cardBg);
+        dpHireDate.getComponentDateTextField().putClientProperty(FlatClientProperties.STYLE,
+                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+        dpHireDate.getComponentToggleCalendarButton().putClientProperty(FlatClientProperties.STYLE,
+                "arc: 12; background: #6366F1; foreground: #FFFFFF; margin: 5, 10, 5, 10");
 
         add(createLabel("Full Name"));
         add(tfFullName, "growx, gapbottom 15");
@@ -139,8 +160,8 @@ public class TeacherDetailSidePanel extends JPanel {
         add(createLabel("Specialty"));
         add(tfSpecialty, "growx, gapbottom 15");
 
-        add(createLabel("Hire Date (yyyy-MM-dd)"));
-        add(tfHireDate, "growx, gapbottom 15");
+        add(createLabel("Hire Date (dd/MM/yyyy)"));
+        add(dpHireDate, "growx, h 44!, gapbottom 15");
 
         add(createLabel("Email Address"));
         add(tfEmail, "growx, gapbottom 15");

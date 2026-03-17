@@ -1,6 +1,9 @@
 package com.languagecenter.dao;
 
 import com.languagecenter.entity.Enrollment;
+import com.languagecenter.entity.CourseClass;
+import com.languagecenter.entity.Course;
+import com.languagecenter.entity.Payment;
 import com.languagecenter.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -41,6 +44,75 @@ public class EnrollmentDAO {
                 transaction.rollback();
             }
             e.printStackTrace();
+        }
+    }
+
+    public boolean isEligibleForClass(int studentId, int classId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            CourseClass courseClass = session.get(CourseClass.class, classId);
+            if (courseClass == null || courseClass.getCourse() == null) return false;
+            
+            Course course = courseClass.getCourse();
+            int targetLevelWeight = Course.getLevelWeight(course.getLevel());
+            
+            if (targetLevelWeight > 1) {
+                String queryStr = "FROM Enrollment e WHERE e.student.id = :studentId AND e.status = 'Completed'";
+                List<Enrollment> completedEnrollments = session.createQuery(queryStr, Enrollment.class)
+                    .setParameter("studentId", studentId)
+                    .list();
+                
+                boolean hasPreceding = false;
+                boolean hasPlacementTest = false;
+                
+                for (Enrollment e : completedEnrollments) {
+                    Course c = e.getCourseClass().getCourse();
+                    if ("Placement Test".equalsIgnoreCase(c.getName())) {
+                        hasPlacementTest = true;
+                    }
+                    if (Course.getLevelWeight(c.getLevel()) == targetLevelWeight - 1) {
+                        hasPreceding = true;
+                    }
+                }
+                
+                if (!hasPreceding && !hasPlacementTest) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public void enrollStudent(Enrollment enrollment) throws Exception {
+        if (!isEligibleForClass(enrollment.getStudent().getId(), enrollment.getCourseClass().getId())) {
+             throw new Exception("Student is not eligible for this class due to prerequisite requirements.");
+        }
+
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.persist(enrollment);
+            
+            String hql = "FROM Payment p WHERE p.student.id = :studentId AND p.enrollment IS NULL";
+            List<Payment> payments = session.createQuery(hql, Payment.class)
+                .setParameter("studentId", enrollment.getStudent().getId())
+                .list();
+                
+            if (!payments.isEmpty()) {
+                Payment paymentToLink = payments.get(0);
+                paymentToLink.setEnrollment(enrollment);
+                session.merge(paymentToLink);
+            }
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            throw e; 
         }
     }
 

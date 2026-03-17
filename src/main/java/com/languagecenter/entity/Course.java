@@ -132,4 +132,16 @@ public class Course {
     public void setStatus(String status) {
         this.status = status;
     }
+
+    public static int getLevelWeight(String level) {
+        if (level == null) return 0;
+        return switch (level.trim()) {
+            case "Beginner" -> 1;
+            case "Elementary" -> 2;
+            case "Intermediate" -> 3;
+            case "Advanced" -> 4;
+            case "IELTS Masterclass" -> 5;
+            default -> 0;
+        };
+    }
 }

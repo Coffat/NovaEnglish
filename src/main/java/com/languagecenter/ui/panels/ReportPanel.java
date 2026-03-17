@@ -40,13 +40,8 @@ public class ReportPanel extends JPanel {
         lblTitle.setFont(new Font("Inter", Font.BOLD, 28));
         lblTitle.setForeground(new Color(0x1E293B));
         
-        JButton btnRefresh = new JButton("Refresh Data");
-        btnRefresh.putClientProperty(FlatClientProperties.STYLE, "arc: 10; background: #4F46E5; foreground: #FFFFFF; font: bold +1");
-        btnRefresh.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnRefresh.addActionListener(e -> refreshData());
 
         headerPanel.add(lblTitle, BorderLayout.WEST);
-        headerPanel.add(btnRefresh, BorderLayout.EAST);
         
         add(headerPanel, BorderLayout.NORTH);
 

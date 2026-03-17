@@ -15,6 +15,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Comparator;
 import java.util.List;
 
 public class CoursePanel extends JPanel {
@@ -76,6 +77,15 @@ public class CoursePanel extends JPanel {
 
         JTable table = new JTable(model);
         sorter = new TableRowSorter<>(model);
+        
+        // Set custom comparator for Level column (index 3)
+        sorter.setComparator(3, (Comparator<String>) (o1, o2) -> 
+            Integer.compare(Course.getLevelWeight(o1), Course.getLevelWeight(o2))
+        );
+        
+        // Default sort by Level ascending
+        sorter.setSortKeys(List.of(new RowSorter.SortKey(3, SortOrder.ASCENDING)));
+        
         table.setRowSorter(sorter);
 
         setupTableStyling(table);
@@ -155,11 +165,6 @@ public class CoursePanel extends JPanel {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setOpaque(false);
 
-        JButton btnRefresh = new JButton("Refresh / Load");
-        btnRefresh.addActionListener(e -> {
-            loadData();
-            JOptionPane.showMessageDialog(this, "Data refreshed!");
-        });
 
         JButton btnAdd = new JButton("Add Course");
         btnAdd.addActionListener(e -> {
@@ -173,7 +178,6 @@ public class CoursePanel extends JPanel {
             }
         });
 
-        actionPanel.add(btnRefresh);
         actionPanel.add(btnAdd);
 
         tableContainer.add(actionPanel, BorderLayout.SOUTH);
@@ -229,35 +233,44 @@ public class CoursePanel extends JPanel {
     }
 
     class StatusBadgeRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                int row, int column) {
-            JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+        private JPanel container;
+        private JPanel pill;
+        private JLabel badge;
+
+        public StatusBadgeRenderer() {
+            container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
             container.setOpaque(true);
+            
+            badge = new JLabel();
+            badge.setFont(new Font("Inter", Font.BOLD, 11));
+            badge.setBorder(new EmptyBorder(5, 12, 5, 12));
+            badge.setOpaque(false);
+
+            pill = new JPanel(new BorderLayout());
+            pill.add(badge);
+            pill.setOpaque(true);
+            pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+            
+            container.add(pill);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             container.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
             if (value != null) {
-                JLabel badge = new JLabel(value.toString());
-                badge.setFont(new Font("Inter", Font.BOLD, 11));
-                badge.setBorder(new EmptyBorder(5, 12, 5, 12));
-                badge.setOpaque(false);
-
-                JPanel pill = new JPanel(new BorderLayout());
-                pill.add(badge);
-                pill.setOpaque(false);
-                pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+                pill.setVisible(true);
+                badge.setText(value.toString());
 
                 if (value.toString().equalsIgnoreCase("Active")) {
-                    badge.setForeground(new Color(0x15803D));
-                    pill.setBackground(new Color(0xDCFCE7));
-                    pill.setOpaque(true);
+                    badge.setForeground(new Color(0x15803D)); // Dark Green Text
+                    pill.setBackground(new Color(0xDCFCE7)); // Light Green Bg
                 } else {
-                    badge.setForeground(new Color(0xB91C1C));
-                    pill.setBackground(new Color(0xFEE2E2));
-                    pill.setOpaque(true);
+                    badge.setForeground(new Color(0xB91C1C)); // Dark Red Text
+                    pill.setBackground(new Color(0xFEE2E2)); // Light Red Bg
                 }
-
-                container.add(pill);
+            } else {
+                pill.setVisible(false);
             }
             return container;
         }

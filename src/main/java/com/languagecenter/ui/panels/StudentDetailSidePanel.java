@@ -3,12 +3,20 @@ package com.languagecenter.ui.panels;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.languagecenter.entity.Student;
+import com.languagecenter.entity.Course;
+import com.languagecenter.dao.CourseDAO;
+import com.languagecenter.dao.StudentDAO;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class StudentDetailSidePanel extends JPanel {
@@ -22,10 +30,13 @@ public class StudentDetailSidePanel extends JPanel {
     private Student currentStudent;
 
     private JTextField tfFullName;
-    private JTextField tfDob;
+    private DatePicker dpDob;
     private JTextField tfEmail;
     private JTextField tfPhone;
+    
     private JComboBox<String> cbStatus;
+    
+    private JPanel courseCheckboxPanel;
 
     public StudentDetailSidePanel(Runnable onCloseCallback) {
         this.onCloseCallback = onCloseCallback;
@@ -38,13 +49,13 @@ public class StudentDetailSidePanel extends JPanel {
 
         if (student != null) {
             tfFullName.setText(student.getFullName());
-            tfDob.setText(student.getDateOfBirth() != null ? student.getDateOfBirth().toString() : "");
+            dpDob.setDate(student.getDateOfBirth());
             tfEmail.setText(student.getEmail());
             tfPhone.setText(student.getPhone());
             cbStatus.setSelectedItem(student.getStatus());
         } else {
             tfFullName.setText("");
-            tfDob.setText("");
+            dpDob.setDate(null);
             tfEmail.setText("");
             tfPhone.setText("");
             cbStatus.setSelectedIndex(0);
@@ -63,23 +74,47 @@ public class StudentDetailSidePanel extends JPanel {
                 return;
             }
 
-            currentStudent.setFullName(name);
-            currentStudent.setEmail(tfEmail.getText().trim());
-            currentStudent.setPhone(tfPhone.getText().trim());
-            currentStudent.setStatus((String) cbStatus.getSelectedItem());
-
-            try {
-                String dobText = tfDob.getText().trim();
-                if (!dobText.isEmpty()) {
-                    currentStudent.setDateOfBirth(LocalDate.parse(dobText));
-                }
-            } catch (DateTimeParseException e) {
-                JOptionPane.showMessageDialog(this, "Invalid Date format. Use yyyy-MM-dd.", "Error",
-                        JOptionPane.ERROR_MESSAGE);
+            String phone = tfPhone.getText().trim();
+            if (!phone.isEmpty() && !phone.matches("^0\\d{9}$")) {
+                JOptionPane.showMessageDialog(this, "Phone number must be exactly 10 digits and start with 0.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            onSaveCallback.accept(currentStudent);
+            currentStudent.setFullName(name);
+            currentStudent.setEmail(tfEmail.getText().trim());
+            currentStudent.setPhone(phone);
+            currentStudent.setStatus((String) cbStatus.getSelectedItem());
+            currentStudent.setDateOfBirth(dpDob.getDate());
+
+            List<Course> selectedCourses = new java.util.ArrayList<>();
+            if (courseCheckboxPanel != null) {
+                for (Component comp : courseCheckboxPanel.getComponents()) {
+                    if (comp instanceof JCheckBox) {
+                        JCheckBox cb = (JCheckBox) comp;
+                        if (cb.isSelected()) {
+                            selectedCourses.add((Course) cb.getClientProperty("courseObject"));
+                        }
+                    }
+                }
+            }
+
+            try {
+                if (currentStudent.getId() == 0) {
+                    StudentDAO.getInstance().saveStudentWithPayments(currentStudent, selectedCourses);
+                } else {
+                    StudentDAO.getInstance().updateStudent(currentStudent);
+                }
+                
+                if (onSaveCallback != null) {
+                    onSaveCallback.accept(currentStudent);
+                }
+                
+                if (onCloseCallback != null) {
+                    onCloseCallback.run();
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Failed to save: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
@@ -125,15 +160,36 @@ public class StudentDetailSidePanel extends JPanel {
 
         // Form fields (vertical)
         tfFullName = createTextField("e.g. Samuel");
-        tfDob = createTextField("2000-01-01");
         tfEmail = createTextField("student@example.com");
-        tfPhone = createTextField("+1 234 567 890");
+        tfPhone = createTextField("09xxxxxxxx");
+        
+        // Setup Phone filter
+        ((AbstractDocument) tfPhone.getDocument()).setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                String currentText = fb.getDocument().getText(0, fb.getDocument().getLength());
+                String result = currentText.substring(0, offset) + text + currentText.substring(offset + length);
+                if (result.length() <= 10 && result.matches("\\d*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+
+        DatePickerSettings dateSettings = new DatePickerSettings();
+        dateSettings.setFormatForDatesCommonEra("dd/MM/yyyy");
+        dateSettings.setAllowKeyboardEditing(true);
+        dpDob = new DatePicker(dateSettings);
+        dpDob.setBackground(cardBg);
+        dpDob.getComponentDateTextField().putClientProperty(FlatClientProperties.STYLE,
+                "arc: 12; focusedBorderColor: #6366F1; borderColor: #CBD5E1; background: #F8FAFC; margin: 5, 10, 5, 10");
+        dpDob.getComponentToggleCalendarButton().putClientProperty(FlatClientProperties.STYLE,
+                "arc: 12; background: #6366F1; foreground: #FFFFFF; margin: 5, 10, 5, 10");
 
         add(createLabel("Full Name"));
         add(tfFullName, "growx, gapbottom 15");
 
-        add(createLabel("Date of Birth (yyyy-MM-dd)"));
-        add(tfDob, "growx, gapbottom 15");
+        add(createLabel("Date of Birth (dd/MM/yyyy)"));
+        add(dpDob, "growx, h 44!, gapbottom 15");
 
         add(createLabel("Email Address"));
         add(tfEmail, "growx, gapbottom 15");
@@ -146,7 +202,30 @@ public class StudentDetailSidePanel extends JPanel {
         cbStatus.putClientProperty(FlatClientProperties.STYLE,
                 "arc: 12; focusedBorderColor: #6366F1; background: #F8FAFC; borderColor: #CBD5E1");
         cbStatus.setPreferredSize(new Dimension(-1, 40));
-        add(cbStatus, "growx, gapbottom 30");
+        add(cbStatus, "growx, gapbottom 15");
+
+        add(createLabel("Select Courses"));
+        
+        courseCheckboxPanel = new JPanel();
+        courseCheckboxPanel.setLayout(new BoxLayout(courseCheckboxPanel, BoxLayout.Y_AXIS));
+        courseCheckboxPanel.setBackground(new Color(0xF8FAFC));
+        courseCheckboxPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        
+        List<Course> courses = CourseDAO.getInstance().getAllCourses();
+        for (Course c : courses) {
+            JCheckBox cb = new JCheckBox(c.getName() + " - $" + c.getFee());
+            cb.putClientProperty("courseObject", c);
+            cb.setBackground(new Color(0xF8FAFC));
+            cb.setFont(new Font("Inter", Font.PLAIN, 13));
+            cb.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            courseCheckboxPanel.add(cb);
+        }
+
+        JScrollPane scrollPane = new JScrollPane(courseCheckboxPanel);
+        scrollPane.setPreferredSize(new Dimension(-1, 120));
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.putClientProperty(FlatClientProperties.STYLE, "arc: 12; borderColor: #CBD5E1");
+        add(scrollPane, "growx, gapbottom 30");
 
         // Bottom push
         add(new JLabel(), "growy, pushy");

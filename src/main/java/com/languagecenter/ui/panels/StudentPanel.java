@@ -16,6 +16,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class StudentPanel extends JPanel {
@@ -110,7 +111,6 @@ public class StudentPanel extends JPanel {
                             if (student != null) {
                                 if (mainFrame != null) {
                                     mainFrame.openStudentSidePanel(student, (updatedStudent) -> {
-                                        studentDAO.updateStudent(updatedStudent);
                                         loadData();
                                         mainFrame.toggleSidePanel(false);
                                         JOptionPane.showMessageDialog(mainFrame, "Student updated successfully!");
@@ -164,17 +164,11 @@ public class StudentPanel extends JPanel {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setOpaque(false);
 
-        JButton btnRefresh = new JButton("Refresh / Load");
-        btnRefresh.addActionListener(e -> {
-            loadData();
-            JOptionPane.showMessageDialog(this, "Data refreshed!");
-        });
 
         JButton btnAdd = new JButton("Add Student");
         btnAdd.addActionListener(e -> {
             if (mainFrame != null) {
                 mainFrame.openStudentSidePanel(null, (newStudent) -> {
-                    studentDAO.addStudent(newStudent);
                     loadData();
                     mainFrame.toggleSidePanel(false);
                     JOptionPane.showMessageDialog(mainFrame, "Student added successfully!");
@@ -182,7 +176,6 @@ public class StudentPanel extends JPanel {
             }
         });
 
-        actionPanel.add(btnRefresh);
         actionPanel.add(btnAdd);
 
         tableContainer.add(actionPanel, BorderLayout.SOUTH);
@@ -202,16 +195,17 @@ public class StudentPanel extends JPanel {
             return;
         model.setRowCount(0);
         List<Student> students = studentDAO.getAllStudents();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         for (Student s : students) {
             Object[] row = new Object[] {
                     s.getId(),
                     s.getFullName(),
-                    s.getDateOfBirth() != null ? s.getDateOfBirth().toString() : "",
+                    s.getDateOfBirth() != null ? s.getDateOfBirth().format(formatter) : "",
                     s.getGender(),
                     s.getPhone(),
                     s.getEmail(),
                     s.getAddress(),
-                    s.getRegistrationDate() != null ? s.getRegistrationDate().toString() : "",
+                    s.getRegistrationDate() != null ? s.getRegistrationDate().format(formatter) : "",
                     s.getStatus(),
                     ""
             };
@@ -246,35 +240,44 @@ public class StudentPanel extends JPanel {
     }
 
     class StatusBadgeRenderer extends DefaultTableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-                int row, int column) {
-            JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+        private JPanel container;
+        private JPanel pill;
+        private JLabel badge;
+
+        public StatusBadgeRenderer() {
+            container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
             container.setOpaque(true);
+            
+            badge = new JLabel();
+            badge.setFont(new Font("Inter", Font.BOLD, 11));
+            badge.setBorder(new EmptyBorder(5, 12, 5, 12));
+            badge.setOpaque(false);
+
+            pill = new JPanel(new BorderLayout());
+            pill.add(badge);
+            pill.setOpaque(true);
+            pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+            
+            container.add(pill);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
             container.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
             if (value != null) {
-                JLabel badge = new JLabel(value.toString());
-                badge.setFont(new Font("Inter", Font.BOLD, 11));
-                badge.setBorder(new EmptyBorder(5, 12, 5, 12));
-                badge.setOpaque(false);
-
-                JPanel pill = new JPanel(new BorderLayout());
-                pill.add(badge);
-                pill.setOpaque(false);
-                pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+                pill.setVisible(true);
+                badge.setText(value.toString());
 
                 if (value.toString().equalsIgnoreCase("Active")) {
                     badge.setForeground(new Color(0x15803D)); // Dark Green Text
                     pill.setBackground(new Color(0xDCFCE7)); // Light Green Bg
-                    pill.setOpaque(true);
                 } else {
                     badge.setForeground(new Color(0xB91C1C)); // Dark Red Text
                     pill.setBackground(new Color(0xFEE2E2)); // Light Red Bg
-                    pill.setOpaque(true);
                 }
-
-                container.add(pill);
+            } else {
+                pill.setVisible(false);
             }
             return container;
         }

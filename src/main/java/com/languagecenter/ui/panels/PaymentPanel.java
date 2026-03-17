@@ -149,11 +149,6 @@ public class PaymentPanel extends JPanel {
         JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         actionPanel.setOpaque(false);
 
-        JButton btnRefresh = new JButton("Refresh / Load");
-        btnRefresh.addActionListener(e -> {
-            loadData();
-            JOptionPane.showMessageDialog(this, "Data refreshed!");
-        });
 
         JButton btnAdd = new JButton("Add Payment");
         btnAdd.addActionListener(e -> {
@@ -167,7 +162,6 @@ public class PaymentPanel extends JPanel {
             }
         });
 
-        actionPanel.add(btnRefresh);
         actionPanel.add(btnAdd);
 
         tableContainer.add(actionPanel, BorderLayout.SOUTH);
@@ -226,30 +220,41 @@ public class PaymentPanel extends JPanel {
 
     class StatusBadgeRenderer extends DefaultTableCellRenderer {
         private final com.languagecenter.strategy.StatusStrategy strategy = new com.languagecenter.strategy.PaymentStatusStrategy();
+        private JPanel container;
+        private JPanel pill;
+        private JLabel badge;
+
+        public StatusBadgeRenderer() {
+            container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
+            container.setOpaque(true);
+
+            badge = new JLabel();
+            badge.setFont(new Font("Inter", Font.BOLD, 11));
+            badge.setBorder(new EmptyBorder(5, 12, 5, 12));
+            badge.setOpaque(false);
+
+            pill = new JPanel(new BorderLayout());
+            pill.add(badge);
+            pill.setOpaque(true);
+            pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
+
+            container.add(pill);
+        }
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 5));
-            container.setOpaque(true);
             container.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
             if (value != null) {
+                pill.setVisible(true);
                 String status = value.toString();
                 com.languagecenter.strategy.StatusStyle style = strategy.getStyle(status);
 
-                JLabel badge = new JLabel(status);
-                badge.setFont(new Font("Inter", Font.BOLD, 11));
-                badge.setBorder(new EmptyBorder(5, 12, 5, 12));
-                badge.setOpaque(false);
+                badge.setText(status);
                 badge.setForeground(style.getForeground());
-
-                JPanel pill = new JPanel(new BorderLayout());
-                pill.add(badge);
-                pill.setOpaque(true);
                 pill.setBackground(style.getBackground());
-                pill.putClientProperty(FlatClientProperties.STYLE, "arc: 999");
-
-                container.add(pill);
+            } else {
+                pill.setVisible(false);
             }
             return container;
         }

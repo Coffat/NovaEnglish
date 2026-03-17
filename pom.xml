@@ -57,5 +57,11 @@
             <artifactId>xchart</artifactId>
             <version>3.8.7</version>
         </dependency>
+        <!-- LGoodDatePicker for Better Date Selection -->
+        <dependency>
+            <groupId>com.github.lgooddatepicker</groupId>
+            <artifactId>LGoodDatePicker</artifactId>
+            <version>11.2.1</version>
+        </dependency>
     </dependencies>
 </project>
