@@ -1,11 +1,11 @@
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=250&section=header&text=NOVA%20ENGLISH&fontSize=70&animation=fadeIn&fontAlignY=35&desc=System%20Management%20Application&descAlignY=55&descSize=20" width="100%" />
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=timeGradient&height=250&section=header&text=NOVA%20ENGLISH&fontSize=70&animation=fadeIn&fontAlignY=35&desc=Advanced%20Language%20Center%20ERP&descAlignY=55&descSize=24" width="100%" />
 
-# 🌟 Language Center Management System 🌟
+# 🌟 Nova English: Language Center Management System 🌟
 
 <p align="center">
-    <b>A modern, robust, and elegant desktop application tailored for English centers.</b><br>
-    <i>Brings your management workflow to the next level with a stunning UI and powerful backend.</i>
+    <b>A high-performance, enterprise-grade desktop solution for managing educational centers.</b><br>
+    <i>Engineered with Java 21, Hibernate ORM, and a sleek modern UI to streamline your academic operations.</i>
   </p>
 
 <p align="center">
@@ -17,80 +17,78 @@
   </p>
 </div>
 
-<br/>
+---
 
-## ✨ Key Features
+## 🚀 Key Modules & Features
 
-Our app is meticulously crafted to ensure a smooth, delightful user experience.
+Nova English is designed to handle every facet of language center administration with precision and style.
 
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/fluency/96/student-male.png" alt="Student" width="50" />
-      <br /><b>Student Management</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://img.icons8.com/fluency/96/teacher.png" alt="Teacher" width="50" />
-      <br /><b>Teacher Profiles</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Books.png" alt="Courses" width="50" />
-      <br /><b>Course Scheduling</b>
-    </td>
-    <td align="center" width="25%">
-      <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Money%20Bag.png" alt="Payments" width="50" />
-      <br /><b>Payment Tracking</b>
-    </td>
-  </tr>
-</table>
+### 👥 Academic Management
+- **Student Profiles**: Comprehensive records, registration tracking, and course history.
+- **Teacher Portals**: Expertise management, assigned classes, and scheduling overview.
+- **Enrollment System**: Seamlessly register students into specific classes with status tracking (Enrolled, Ongoing, Graduated).
+- **Attendance Tracking**: Digital registers for classes with support for *Present*, *Absent*, and *Late* statuses.
 
-- 🎨 **Sleek & Modern UI**: Powered by **FlatLaf**, featuring smooth animations, soft drop-shadows, and scalable SVG icons.
-- ⚡ **Real-time Search Filter**: Lightning-fast table filtering right out of the box.
-- 🔐 **Robust Security**: Secure login forms, smart state management, and password validation.
-- 🗄️ **Hibernate ORM Magic**: Jakarta Persistence fully mapped to seamlessly interact with MySQL 8.
-- 📱 **Interactive Side Panels**: Edit entity details smoothly without leaving your context map.
+### 📅 Operational Logistics
+- **Course & Class Orchestration**: Manage multi-tier courses and assign them to specific classroom environments.
+- **Smart Scheduling**: Generate full-term schedules automatically based on weekly patterns (e.g., Mon-Wed-Fri) and date ranges.
+- **Room Management**: Track classroom availability and prevent scheduling conflicts.
+
+### 💰 Financials & Reporting
+- **Payment Processing**: Precise tuition fee tracking using `BigDecimal` for financial accuracy.
+- **Automated Invoicing**: Link payments directly to enrollments and monitor outstanding balances.
+- **Real-time Refresh**: Global listeners ensure all panels reflect the latest data changes immediately without manual refreshes.
 
 ---
 
-## 🚀 Getting Started
+## 🎨 Modern UI/UX Experience
 
-Follow these aesthetic steps to launch the system locally.
+Driven by **FlatLaf** design principles, the application offers a premium feel comparable to modern web apps.
+
+- **Sliding Detail Panels**: View and edit entity details (Students, Teachers, Classes) without losing your place in the main table.
+- **Context-Aware Controls**: Interactive checkboxes, dynamic dropdowns, and status-dependent UI elements.
+- **Vibrant Rendering**: Custom cell renderers for status badges (Strategy Pattern) and modern iconography.
+- **Adaptive Search**: Instant, realtime filtering across all management modules.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+### 🏗️ Design Patterns Applied
+- **Builder Pattern**: Used for robust entity construction and cleaner code.
+- **Strategy Pattern**: Implemented for dynamic UI rendering of statuses and roles.
+- **DAO Pattern**: Centralized database logic using Hibernate's `Session` API for thread-safe operations.
+
+### 💻 Infrastructure
+- **Core**: Java 21 (LTS)
+- **UI Framework**: Java Swing + MigLayout + FlatLaf (Custom Material/macOS styles)
+- **Persistance**: Hibernate 6.4 (Jakarta Persistence)
+- **Database**: MySQL 8.0
+- **Build Tool**: Apache Maven
+
+---
+
+## 🏁 Getting Started
 
 ### 1️⃣ Prerequisites
+- **Java JDK 21+**
+- **Maven 3.x**
+- **MySQL 8.x**
 
-> Make sure your machine meets these requirements
-
-- **Java JDK 21+** ☕
-- **Apache Maven 3.x** 🛠️
-- **MySQL Server 8.x** 🐬
-
-### 2️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/Coffat/heThongTiengAnh.git
-cd heThongTiengAnh
-```
-
-### 3️⃣ Setup the Database
-
-Create a new MySQL database and establish the schema.
-*Note: Hibernate uses `update` mode, so tables will be auto-generated based on our JPA entities if they do not exist!*
+### 2️⃣ Database Setup
+Import the provided `database.sql` to initialize your schema, or let Hibernate auto-generate it.
 
 ```sql
 CREATE DATABASE language_centerdb;
 ```
 
-Update your connection credentials in `src/main/resources/hibernate.cfg.xml`:
-
+Update your credentials in `src/main/resources/hibernate.cfg.xml`:
 ```xml
-<property name="hibernate.connection.username">your_mysql_username</property>
-<property name="hibernate.connection.password">your_mysql_password</property>
+<property name="hibernate.connection.username">USER</property>
+<property name="hibernate.connection.password">PASSWORD</property>
 ```
 
-### 4️⃣ Build & Run 🔥
-
-Using Maven to resolve dependencies, compile the project and boot up the magic:
-
+### 3️⃣ Build & Launch
 ```bash
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
@@ -98,47 +96,8 @@ mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
 
 ---
 
-## 💻 Tech Stack Architecture
-
-<br>
-<div align="center">
-  <img src="https://skillicons.dev/icons?i=java,mysql,maven,hibernate,git,github" />
-</div>
-<br>
-
-<details open>
-  <summary><b>View Module Breakdowns</b></summary>
-  <br/>
-
-- **Frontend / UI**: `Java Swing` augmented with `FlatLaf` for macOS/Windows native-like soft UI. Utilizes `MigLayout` for complex responsive grids.
-- **Backend Layer**: Java 21 LTS standard backend logic, fully event-driven UI listeners.
-- **Data Integration**: DAO Implementation pattern utilizing `Hibernate 6` `Session` operations. Entity mapping explicitly binds models to MySQL rows.
-
-</details>
-
----
-
-## 🎨 Design Showcase
-
-Our intuitive UI emphasizes layout hierarchy and distinct micro-interactions. From rounded corners to custom color palettes inspired by TailwindCSS (*Indigo, Slate, White*).
-
-<div align="center">
-   <i>Screenshot placeholders (Upload real screenshots to your repo and update here)</i><br>
-  <img src="https://placehold.co/800x450/6366F1/FFFFFF/png?text=Dashboard+Interface" width="48%" />
-  <img src="https://placehold.co/800x450/1E293B/FFFFFF/png?text=Side-panel+Animations" width="48%" />
-</div>
-
----
-
-## 🤝 Contributing
-
-We welcome contributions to make **Nova English** even better!
-
-1. `Fork` the repository
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 📈 Project Status
+For detailed implementation progress, see [TienDoThucHien.md](./TienDoThucHien.md).
 
 ---
 
