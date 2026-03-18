@@ -43,6 +43,7 @@
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/PaymentDetailSidePanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/PaymentPanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/PlaceholderPanel.java
+/Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/RefreshablePanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/ReportPanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/ScheduleDetailSidePanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/SchedulePanel.java
@@ -52,3 +53,4 @@
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/ui/panels/TeacherPanel.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/util/CurrencyUtil.java
 /Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/util/HibernateUtil.java
+/Users/vuthang/Desktop/LanguageCenterApp/src/main/java/com/languagecenter/util/ScreenshotUtility.java

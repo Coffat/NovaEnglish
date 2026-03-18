@@ -13,9 +13,12 @@
     <a href="https://hibernate.org/"><img src="https://img.shields.io/badge/Hibernate-6.4-59666C?style=for-the-badge&logo=hibernate&logoColor=white" alt="Hibernate" /></a>
     <a href="https://maven.apache.org/"><img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven" /></a>
     <a href="https://mysql.com/"><img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" /></a>
-    <a href="https://www.formdev.com/flatlaf/"><img src="https://img.shields.io/badge/UI-FlatLaf-4169E1?style=for-the-badge&logo=swiggy&logoColor=white" alt="FlatLaf" /></a>
-  </p>
-</div>
+- [Java 21 LTS](https://java.com/)
+- [Hibernate 6.4](https://hibernate.org/)
+... and more.
+
+> [!NOTE]
+> **Tài liệu tiếng Việt**: Bạn có thể xem hướng dẫn sử dụng chi tiết bằng tiếng Việt tại [README_VN.md](./README_VN.md).
 
 ---
 
