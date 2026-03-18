@@ -377,6 +377,25 @@ public class MainFrame extends JFrame {
         }
         toggleSidePanel(false); // Hide side panel when switching views
         cardLayout.show(cardContainer, name);
+        
+        // Fix for "blank page on startup" and ensure data is refreshed after layout settles
+        SwingUtilities.invokeLater(() -> {
+            cardContainer.revalidate();
+            cardContainer.repaint();
+            
+            for (Component comp : cardContainer.getComponents()) {
+                // Check Visibility or just refresh all cards if frame is just starting up
+                if (comp.isVisible() || !isShowing()) {
+                    if (comp instanceof Container container) {
+                        for (Component child : container.getComponents()) {
+                            if (child instanceof com.languagecenter.ui.panels.RefreshablePanel rf) {
+                                rf.refresh();
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         for (Map.Entry<String, JButton> entry : navButtons.entrySet()) {
             JButton btn = entry.getValue();

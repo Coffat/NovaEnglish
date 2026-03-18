@@ -26,7 +26,7 @@ public class StudentDAO {
 
     public List<Student> getAllStudents() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Student", Student.class).list();
+            return session.createQuery("SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.enrollments", Student.class).list();
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
@@ -64,7 +64,7 @@ public class StudentDAO {
                 Payment payment = new Payment();
                 payment.setStudent(student);
                 payment.setAmount(totalAmount);
-                payment.setStatus("Unpaid");
+                payment.setStatus("Pending");
                 payment.setPaymentDate(LocalDate.now());
                 payment.setEnrollment(null); // Explicitly set to null because no enrollment yet
                 

@@ -34,8 +34,18 @@ public class ScheduleDetailSidePanel extends JPanel {
     private DatePicker dpSessionDate;
     private JTextField tfStartTime;
     private JTextField tfEndTime;
+    private JRadioButton rbSingleSession;
+    private JRadioButton rbBatchGenerate;
     private JTextArea taSchedulePreview;
     private JLabel lblClassInfo;
+
+    // Mode-specific components for toggling
+    private JLabel lblPattern;
+    private JLabel lblClassInfoDynamic;
+    private JLabel lblPreview;
+    private JScrollPane spPreview;
+    private JLabel lblSingleSessionHeader;
+    private JPanel sessionFields;
 
     private CourseClassDAO classDAO = CourseClassDAO.getInstance();
 
@@ -58,16 +68,16 @@ public class ScheduleDetailSidePanel extends JPanel {
             dpSessionDate.setDate(schedule.getScheduleDate());
             tfStartTime.setText(schedule.getStartTime() != null ? schedule.getStartTime().toString() : "");
             tfEndTime.setText(schedule.getEndTime() != null ? schedule.getEndTime().toString() : "");
-            
-            // In single edit mode, maybe disable pattern selection to avoid confusion?
-            // User can still change it if they want to "Regenerate all"
+            rbSingleSession.setSelected(true);
         } else {
-            if (cbCourseClass.getItemCount() > 0) cbCourseClass.setSelectedIndex(0);
             tfRoomId.setText("");
             dpSessionDate.setDate(LocalDate.now());
             tfStartTime.setText("");
             tfEndTime.setText("");
+            
+            rbBatchGenerate.setSelected(true);
         }
+        toggleModeFields();
         updateClassInfo();
     }
 
@@ -87,12 +97,11 @@ public class ScheduleDetailSidePanel extends JPanel {
             cbCourseClass.addItem(c);
         }
     }
-
     private void onSave() {
         if (onSaveCallback != null) {
             CourseClass selectedClass = (CourseClass) cbCourseClass.getSelectedItem();
             if (selectedClass == null) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn Lớp học.");
+                JOptionPane.showMessageDialog(this, "Please select a Class.");
                 return;
             }
 
@@ -101,26 +110,19 @@ public class ScheduleDetailSidePanel extends JPanel {
                 String roomText = tfRoomId.getText().trim();
                 roomId = roomText.isEmpty() ? null : Integer.parseInt(roomText);
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Số phòng không hợp lệ.");
+                JOptionPane.showMessageDialog(this, "Invalid Room ID.");
                 return;
             }
 
             String newPattern = (String) cbPattern.getSelectedItem();
-            if (currentSchedule != null) {
-                // Auto-detect intent: if pattern changed, it's potentially a class-wide change.
-                String oldPattern = selectedClass.getSchedulePattern();
-                boolean patternChanged = (oldPattern == null && newPattern != null) 
-                                       || (oldPattern != null && !oldPattern.equals(newPattern));
-
-                if (patternChanged) {
-                    saveEntireClass(selectedClass, newPattern, roomId);
-                } else {
-                    // No pattern change -> Auto-save single session
-                    saveSingleSession(selectedClass, roomId);
-                }
-            } else {
-                // New / Generate mode
+            
+            if (rbBatchGenerate.isSelected()) {
                 saveEntireClass(selectedClass, newPattern, roomId);
+            } else {
+                if (currentSchedule == null) {
+                    currentSchedule = new Schedule();
+                }
+                saveSingleSession(selectedClass, roomId);
             }
         }
     }
@@ -139,13 +141,13 @@ public class ScheduleDetailSidePanel extends JPanel {
             
             onSaveCallback.accept(currentSchedule);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi định dạng thời gian (HH:mm) hoặc ngày tháng.");
+            JOptionPane.showMessageDialog(this, "Invalid time format (HH:mm) or date.");
         }
     }
 
     private void saveEntireClass(CourseClass selectedClass, String newPattern, Integer roomId) {
-        String msg = "Xác nhận tạo/cập nhật toàn bộ lịch cho lớp " + selectedClass.getClassName() + " theo kiểu " + newPattern + "?\n(Lịch cũ sẽ bị xóa)";
-        int confirm = JOptionPane.showConfirmDialog(this, msg, "Xác nhận", JOptionPane.YES_NO_OPTION);
+        String msg = "Confirm generating/updating the entire schedule for class " + selectedClass.getClassName() + " with pattern " + newPattern + "?\n(Existing schedules will be deleted)";
+        int confirm = JOptionPane.showConfirmDialog(this, msg, "Confirm", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
             try {
@@ -154,16 +156,16 @@ public class ScheduleDetailSidePanel extends JPanel {
                 
                 List<Schedule> newSchedules = generateSchedules(selectedClass, roomId);
                 if (newSchedules.isEmpty()) {
-                    JOptionPane.showMessageDialog(this, "Không có buổi học nào được tạo.");
+                    JOptionPane.showMessageDialog(this, "No sessions were created.");
                     return;
                 }
 
                 com.languagecenter.dao.ScheduleDAO.getInstance().replaceSchedulesForClass(selectedClass.getId(), newSchedules);
-                JOptionPane.showMessageDialog(this, "Đã cập nhật " + newSchedules.size() + " buổi học mới.");
+                JOptionPane.showMessageDialog(this, "Updated " + newSchedules.size() + " new sessions.");
                 onSaveCallback.accept(null);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
         }
     }
@@ -296,7 +298,7 @@ public class ScheduleDetailSidePanel extends JPanel {
         lblClassInfo.setForeground(new Color(0x475569));
         
         tfRoomId = new JTextField();
-        styleTextField(tfRoomId, "Phòng học");
+        styleTextField(tfRoomId, "Room ID");
 
         DatePickerSettings ds = new DatePickerSettings();
         ds.setFormatForDatesCommonEra("dd/MM/yyyy");
@@ -309,43 +311,74 @@ public class ScheduleDetailSidePanel extends JPanel {
         tfEndTime = new JTextField();
         styleTextField(tfEndTime, "HH:mm");
 
+        rbSingleSession = new JRadioButton("Single Session (One-off)");
+        rbBatchGenerate = new JRadioButton("Batch Generate (Whole Course)");
+        rbSingleSession.setOpaque(false);
+        rbBatchGenerate.setOpaque(false);
+        rbSingleSession.setFont(new Font("Inter", Font.BOLD, 13));
+        rbBatchGenerate.setFont(new Font("Inter", Font.BOLD, 13));
+        
+        rbSingleSession.addActionListener(e -> toggleModeFields());
+        rbBatchGenerate.addActionListener(e -> toggleModeFields());
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(rbSingleSession);
+        group.add(rbBatchGenerate);
+
+        add(createLabel("Operation Mode"));
+        add(rbSingleSession, "growx");
+        add(rbBatchGenerate, "growx, gapbottom 15");
+
         taSchedulePreview = new JTextArea(6, 20);
         taSchedulePreview.setEditable(false);
         taSchedulePreview.setFont(new Font("Monospaced", Font.PLAIN, 11));
         taSchedulePreview.setBackground(new Color(0xF8FAFC));
         taSchedulePreview.setBorder(BorderFactory.createLineBorder(new Color(0xE2E8F0)));
-        JScrollPane spPreview = new JScrollPane(taSchedulePreview);
+        spPreview = new JScrollPane(taSchedulePreview);
         spPreview.setBorder(BorderFactory.createEmptyBorder());
+        spPreview.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
 
-        add(createLabel("Lớp học"));
+        add(createLabel("Course Class"));
         add(cbCourseClass, "growx, gapbottom 10");
 
-        add(createLabel("Kiểu lịch (Pattern)"));
+        lblPattern = createLabel("Schedule Pattern");
+        lblPattern.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
+        add(lblPattern);
+        
+        cbPattern.putClientProperty(FlatClientProperties.STYLE, "focusColor: #6366F1; background: #F8FAFC; hidemode 3");
         add(cbPattern, "growx, gapbottom 10");
 
-        add(lblClassInfo, "growx, gapbottom 15");
+        lblClassInfoDynamic = lblClassInfo;
+        lblClassInfoDynamic.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
+        add(lblClassInfoDynamic, "growx, gapbottom 15");
 
-        add(createLabel("Cài đặt buổi học đơn lẻ:"));
-        JPanel sessionFields = new JPanel(new MigLayout("insets 0, gap 5, fillx", "[grow][grow][grow]"));
+        lblSingleSessionHeader = createLabel("Single Session Settings:");
+        lblSingleSessionHeader.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
+        add(lblSingleSessionHeader);
+        
+        sessionFields = new JPanel(new MigLayout("insets 0, gap 5, fillx", "[grow][grow][grow]"));
         sessionFields.setOpaque(false);
-        sessionFields.add(createLabel("Ngày"), "wrap");
+        sessionFields.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
+        sessionFields.add(createLabel("Date"), "wrap");
         sessionFields.add(dpSessionDate, "growx, wrap");
-        sessionFields.add(createLabel("Bắt đầu"), "split 2");
-        sessionFields.add(createLabel("Kết thúc"), "wrap");
+        sessionFields.add(createLabel("Start Time"), "split 2");
+        sessionFields.add(createLabel("End Time"), "wrap");
         sessionFields.add(tfStartTime, "growx, split 2");
         sessionFields.add(tfEndTime, "growx, wrap");
         add(sessionFields, "growx, gapbottom 15");
 
-        add(createLabel("Phòng học"));
+        add(createLabel("Room ID"));
         add(tfRoomId, "growx, gapbottom 20");
 
-        add(createLabel("Xem trước lịch (toàn khóa)"));
+        lblPreview = createLabel("Schedule Preview (Full Course)");
+        lblPreview.putClientProperty(FlatClientProperties.STYLE, "hidemode 3");
+        add(lblPreview);
         add(spPreview, "growx, gapbottom 30");
 
         add(new JLabel(), "growy, pushy");
 
         // Action Buttons
-        JButton btnSave = new JButton("Lưu thay đổi");
+        JButton btnSave = new JButton("Save Changes");
         btnSave.setBackground(accentColor);
         btnSave.setForeground(Color.WHITE);
         btnSave.setFont(new Font("Inter", Font.BOLD, 14));
@@ -354,6 +387,24 @@ public class ScheduleDetailSidePanel extends JPanel {
         btnSave.addActionListener(e -> onSave());
 
         add(btnSave, "growx");
+    }
+
+    private void toggleModeFields() {
+        boolean isSingle = rbSingleSession.isSelected();
+        
+        // Single session components
+        lblSingleSessionHeader.setVisible(isSingle);
+        sessionFields.setVisible(isSingle);
+        
+        // Batch generate components
+        lblPattern.setVisible(!isSingle);
+        cbPattern.setVisible(!isSingle);
+        lblClassInfoDynamic.setVisible(!isSingle);
+        lblPreview.setVisible(!isSingle);
+        spPreview.setVisible(!isSingle);
+        
+        revalidate();
+        repaint();
     }
 
     private JLabel createLabel(String text) {

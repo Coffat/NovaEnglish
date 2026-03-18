@@ -113,9 +113,15 @@ public class ClassEnrollmentsDialog extends JDialog {
                             "Are you sure you want to remove this student from the class?", "Confirm Remove",
                             JOptionPane.YES_NO_OPTION);
                     if (confirm == JOptionPane.YES_OPTION) {
-                        enrollmentDAO.deleteEnrollment(enrollmentId);
-                        loadEnrollments();
-                        loadAvailableStudents();
+                        try {
+                            enrollmentDAO.deleteEnrollment(enrollmentId);
+                            loadEnrollments();
+                            loadAvailableStudents();
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ClassEnrollmentsDialog.this, 
+                                "Failed to remove student from class: " + ex.getMessage(), 
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             }
