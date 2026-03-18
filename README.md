@@ -19,7 +19,6 @@
 ---
 
 ## 🚀 Key Modules & Features
-Nova English handles every facet of language center administration with precision:
 - **Academic**: Student Profiles, Teacher Portals, Enrollment System, Attendance Tracking.
 - **Logistics**: Course & Class Orchestration, Smart Scheduling (Batch Generation), Room Management.
 - **Financials**: Payment Processing (BigDecimal accuracy), Automated Invoicing.
@@ -28,11 +27,9 @@ Nova English handles every facet of language center administration with precisio
 ---
 
 ## 🛠️ Tech Stack & Architecture
-
-### 🏗️ Infrastructure & Patterns
 - **Core Stack**: Java 21 (LTS), Maven 3.x, MySQL 8.0.
 - **ORM**: Hibernate 6.4 (Jakarta Persistence).
-- **UI Framework**: Java Swing + MigLayout + FlatLaf (Custom Styles).
+- **UI Framework**: Java Swing + MigLayout + FlatLaf (Modern Look & Feel).
 - **Design Patterns**: Builder Pattern (Entities), Strategy Pattern (Status Rendering), DAO Pattern.
 
 ---
@@ -43,14 +40,9 @@ Nova English handles every facet of language center administration with precisio
 - Cài đặt MySQL 8.0.
 - Tạo database: `CREATE DATABASE language_centerdb;`
 - Import file `database.sql` để có cấu trúc bảng và dữ liệu mẫu (Seed data).
-- Cập nhật thông tin kết nối tại `src/main/resources/hibernate.cfg.xml`:
-```xml
-<property name="hibernate.connection.username">YOUR_USER</property>
-<property name="hibernate.connection.password">YOUR_PASSWORD</property>
-```
+- Cấu hình tại `src/main/resources/hibernate.cfg.xml`.
 
 ### 2️⃣ Build & Launch
-Mở terminal tại thư mục gốc và chạy:
 ```bash
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
@@ -59,8 +51,6 @@ mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
 ---
 
 # 📕 CẨM NANG SỬ DỤNG CHI TIẾT (USER GUIDE)
-
-Tài liệu này hướng dẫn chi tiết cách vận hành hệ thống Nova English dành cho người dùng cuối.
 
 ## 🔑 1. Đăng Nhập & Khởi Động
 Hệ thống hỗ trợ 3 vai trò mặc định (Mật khẩu: `123456`):
@@ -83,7 +73,20 @@ Tìm kiếm nhanh theo Tên, Email hoặc Số điện thoại.
 
 ---
 
-## 📚 3. Module: Khóa Học & Lớp Học (Course & Class)
+## 👩‍🏫 3. Module: Giáo Viên (Teacher)
+
+### A. Màn Hình Chính
+![Giao diện Quản lý Giáo viên](./docs/screenshots/teachers.png)
+Quản lý hồ sơ giáo viên, chuyên môn (`Specialty`) và tình trạng hoạt động.
+
+### B. Thêm/Sửa & Hồ Sơ (Side Panel & Dialog)
+![Side Panel Giáo viên](./docs/screenshots/sidepanel_teacher.png) | ![Hồ sơ Giáo viên](./docs/screenshots/dialog_teacher_profile.png)
+--- | ---
+**Side Panel**: Cập nhật thông tin chuyên môn, số điện thoại, email và trạng thái. | **Profile Dialog**: Hiển thị hồ sơ chi tiết và danh sách các lớp giáo viên đang phụ trách.
+
+---
+
+## 📚 4. Module: Khóa Học & Lớp Học (Course & Class)
 
 ### A. Quản Lý Khóa Học
 ![Giao diện Quản lý Khóa học](./docs/screenshots/courses.png) | ![Hồ sơ Khóa học](./docs/screenshots/dialog_course_profile.png)
@@ -96,34 +99,29 @@ Tìm kiếm nhanh theo Tên, Email hoặc Số điện thoại.
 
 ---
 
-## 👩‍🏫 4. Module: Giáo Viên (Teacher)
-![Giao diện Quản lý Giáo viên](./docs/screenshots/teachers.png)
-Quản lý hồ sơ giáo viên, chuyên môn (`Specialty`) và lịch sử giảng dạy.
-
----
-
 ## 📅 5. Quản Lý Lịch Học (Schedule)
-![Side Panel Xếp lịch](./docs/screenshots/sidepanel_schedule.png)
-- **Batch Generate**: Tính năng thông minh tự động sinh lịch học cho toàn bộ khóa dựa trên mẫu lịch (`2-4-6`, `3-5-7`) và ngày bắt đầu/kết thúc.
+![Side Panel Xếp lịch](./docs/screenshots/sidepanel_schedule.png) | ![Giao diện Lịch học](./docs/screenshots/schedules.png)
+--- | ---
+**Smart Scheduling**: Batch Generate tự động sinh lịch học cho toàn bộ khóa dựa trên mẫu lịch và ngày bắt đầu/kết thúc. | **Main Board**: Xem lịch tập trung của trung tâm theo ngày/tuần.
 
 ---
 
 ## 💰 6. Tài Chính & Báo Cáo (Payment & Reports)
 
-### A. Thanh Toán Học Phí
-![Giao diện Thanh toán](./docs/screenshots/payments.png)
-Ghi nhận các khoản thu từ học viên qua Tiền mặt, Chuyển khoản hoặc Thẻ.
+### A. Thanh Toán Học Phí & Công Nợ
+![Giao diện Thanh toán](./docs/screenshots/payments.png) | ![Side Panel Thanh toán](./docs/screenshots/sidepanel_payment.png)
+--- | ---
 
 ### B. Dashboard Báo Cáo Thông Minh
 ![Giao diện Báo cáo](./docs/screenshots/reports.png)
-Theo dõi biểu đồ doanh thu theo tháng, tăng trưởng học viên và thống kê hiệu suất lớp học.
+Theo dõi biểu đồ doanh thu theo tháng, tăng trưởng học viên và thống kê hiệu suất trung tâm.
 
 ---
 
 ## 💡 Mẹo Sử Dụng
-- **Instant Search**: Ô tìm kiếm hoạt động lập tức khi bạn gõ, không cần nhấn Enter.
-- **Tự động refresh**: Dữ liệu sẽ tự động đồng bộ trên tất cả các tab mà không cần tải lại trang.
-- **Xác thực dữ liệu**: Số điện thoại phải đủ 10 chữ số, Email phải đúng định dạng.
+- **Instant Search**: Kết quả lọc ngay lập tức khi bạn gõ, không cần nhấn Enter.
+- **Tự động refresh**: Dữ liệu đồng bộ realtime trên tất cả các tab.
+- **Validation**: Hệ thống tự động kiểm tra định dạng Số điện thoại và Email.
 
 ---
 
