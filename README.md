@@ -13,94 +13,158 @@
     <a href="https://hibernate.org/"><img src="https://img.shields.io/badge/Hibernate-6.4-59666C?style=for-the-badge&logo=hibernate&logoColor=white" alt="Hibernate" /></a>
     <a href="https://maven.apache.org/"><img src="https://img.shields.io/badge/Maven-3.9-C71A36?style=for-the-badge&logo=apachemaven&logoColor=white" alt="Maven" /></a>
     <a href="https://mysql.com/"><img src="https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white" alt="MySQL" /></a>
-- [Java 21 LTS](https://java.com/)
-- [Hibernate 6.4](https://hibernate.org/)
-... and more.
-
-> [!NOTE]
-> **Tài liệu tiếng Việt**: Bạn có thể xem hướng dẫn sử dụng chi tiết bằng tiếng Việt tại [README_VN.md](./README_VN.md).
+</p>
+</div>
 
 ---
 
-## 🚀 Key Modules & Features
+# 📕 CẨM NANG SỬ DỤNG TOÀN DIỆN (USER MANUAL)
 
-Nova English is designed to handle every facet of language center administration with precision and style.
-
-### 👥 Academic Management
-- **Student Profiles**: Comprehensive records, registration tracking, and course history.
-- **Teacher Portals**: Expertise management, assigned classes, and scheduling overview.
-- **Enrollment System**: Seamlessly register students into specific classes with status tracking (Enrolled, Ongoing, Graduated).
-- **Attendance Tracking**: Digital registers for classes with support for *Present*, *Absent*, and *Late* statuses.
-
-### 📅 Operational Logistics
-- **Course & Class Orchestration**: Manage multi-tier courses and assign them to specific classroom environments.
-- **Smart Scheduling**: Generate full-term schedules automatically based on weekly patterns (e.g., Mon-Wed-Fri) and date ranges.
-- **Room Management**: Track classroom availability and prevent scheduling conflicts.
-
-### 💰 Financials & Reporting
-- **Payment Processing**: Precise tuition fee tracking using `BigDecimal` for financial accuracy.
-- **Automated Invoicing**: Link payments directly to enrollments and monitor outstanding balances.
-- **Real-time Refresh**: Global listeners ensure all panels reflect the latest data changes immediately without manual refreshes.
+Chào mừng bạn đến với hướng dẫn sử dụng chi tiết dành cho dự án **Nova English**. Tài liệu này giúp bạn làm chủ mọi tính năng, từ các bảng nhập liệu nhanh (Side Panels) đến các hộp thoại hồ sơ chuyên sâu (Profile Dialogs).
 
 ---
 
-## 🎨 Modern UI/UX Experience
+## 🔑 1. Đăng Nhập & Khởi Động
+Khi khởi chạy ứng dụng, màn hình đăng nhập sẽ xuất hiện. Dưới đây là các tài khoản mặc định có sẵn trong dữ liệu mẫu:
+-   **Admin**: `admin` / `123456` (Toàn quyền hệ thống)
+-   **Staff**: `staff` / `123456` (Quản lý nghiệp vụ)
+-   **Root**: `root` / `123456` (Quyền cao nhất)
 
-Driven by **FlatLaf** design principles, the application offers a premium feel comparable to modern web apps.
+---
 
-- **Sliding Detail Panels**: View and edit entity details (Students, Teachers, Classes) without losing your place in the main table.
-- **Context-Aware Controls**: Interactive checkboxes, dynamic dropdowns, and status-dependent UI elements.
-- **Vibrant Rendering**: Custom cell renderers for status badges (Strategy Pattern) and modern iconography.
-- **Adaptive Search**: Instant, realtime filtering across all management modules.
+## 👨‍🎓 2. Quản Lý Học Viên (Student)
+
+### A. Màn Hình Chính
+![Giao diện Quản lý Học viên](./docs/screenshots/students.png)
+Hiển thị danh sách tất cả học viên. Bạn có thể tìm kiếm nhanh theo Tên, Email hoặc Số điện thoại ở thanh công cụ phía trên.
+
+### B. Thêm/Sửa Học Viên (Student Side Panel)
+![Side Panel Học viên](./docs/screenshots/sidepanel_student.png)
+Khi nhấn **"Add Student"** hoặc biểu tượng **Edit**, bảng này sẽ hiện ra:
+-   **Full Name**: Tên đầy đủ (Bắt buộc).
+-   **DOB**: Chọn ngày sinh từ lịch.
+-   **Phone**: Định dạng chuẩn 10 số, bắt đầu bằng số 0.
+-   **Select Courses**: Bạn có thể tích chọn nhiều khóa để ghi danh ngay khi tạo học viên.
+
+### C. Hồ Sơ Chi Tiết (Student Profile Dialog)
+![Hồ sơ Học viên](./docs/screenshots/dialog_student_profile.png)
+**Thao tác**: Double-click vào một dòng trên bảng.
+-   **Hệ thống thẻ (Cards)**: Hiển thị thông tin cá nhân (Địa chỉ, Giới tính, Email).
+-   **Lịch sử học tập**: Liệt kê các lớp đã tham gia, kết quả và trạng thái chuyên cần.
+
+---
+
+## 📚 3. Module: Khóa Học (Course)
+
+### A. Màn Hình Chính
+![Giao diện Quản lý Khóa học](./docs/screenshots/courses.png)
+
+### B. Thêm/Sửa Khóa Học (Course Side Panel)
+![Side Panel Khóa học](./docs/screenshots/sidepanel_course.png)
+-   **Course Name**: Tên khóa học (ví dụ: IELTS 6.5+).
+-   **Duration**: Tổng số buổi học.
+-   **Fee**: Học phí trọn khóa.
+
+### C. Hồ Sơ Khóa Học (Course Profile Dialog)
+![Hồ sơ Khóa học](./docs/screenshots/dialog_course_profile.png)
+Hiển thị mô tả chi tiết và **Danh sách các lớp** đang mở thuộc khóa học này.
+
+---
+
+## 👩‍🏫 4. Module: Quản Lý Giáo Viên (Teacher)
+
+### A. Màn Hình Chính
+![Giao diện Quản lý Giáo viên](./docs/screenshots/teachers.png)
+
+### B. Thêm/Sửa Giáo Viên (Teacher Side Panel)
+![Side Panel Giáo viên](./docs/screenshots/sidepanel_teacher.png)
+-   **Specialty**: Chuyên môn chính (IELTS, TOEIC...).
+-   **Status**: Nếu `Inactive`, giáo viên sẽ không xuất hiện khi tạo lớp mới.
+
+### C. Hồ Sơ Giáo Viên (Teacher Profile Dialog)
+![Hồ sơ Giáo viên](./docs/screenshots/dialog_teacher_profile.png)
+Hiển thị thông tin chuyên môn và **Lịch sử giảng dạy**.
+
+---
+
+## 🏫 5. Lớp Học & Ghi Danh (Class)
+
+### A. Màn Hình Chính
+![Giao diện Quản lý Lớp học](./docs/screenshots/classes.png)
+
+### B. Chi Tiết Lớp Học (Class Side Panel)
+![Side Panel Lớp học](./docs/screenshots/sidepanel_class.png)
+-   **Course Class**: Chọn khóa học (Tự điền học phí).
+-   **Schedule Pattern**: Chọn `2-4-6` hoặc `3-5-7`.
+-   **End Date (Calculated)**: Tự động tính toán ngày kết thúc dựa trên mẫu lịch và tổng số buổi.
+
+### C. Quản Lý Học Viên Trong Lớp (Enrollments Dialog)
+![Quản lý Ghi danh](./docs/screenshots/dialog_enrollments.png)
+**Thao tác**: Nhấn biểu tượng 👥 (Students) ở cột Actions.
+-   **Add to Class**: Thêm học viên vào lớp.
+-   **Result**: Nhập điểm số trực tiếp vào bảng.
+
+### D. Điểm Danh (Attendance Dialog)
+![Điểm danh](./docs/screenshots/dialog_attendance.png)
+**Thao tác**: Nhấn biểu tượng 📅 (Attendance) ở cột Actions.
+-   Chọn ngày và trạng thái: `Present`, `Absent`, `Late`.
+
+---
+
+## 📅 6. Lịch Học (Schedule)
+
+### A. Màn Hình Chính
+![Giao diện Lịch học](./docs/screenshots/schedules.png)
+
+### B. Xếp Lịch Thông Minh (Schedule Side Panel)
+![Side Panel Xếp lịch](./docs/screenshots/sidepanel_schedule.png)
+-   **Batch Generate**: Tự động sinh toàn bộ lịch học cho cả khóa dựa trên mẫu lịch.
+-   **Preview**: Cho phép xem trước các ngày học sẽ được tạo.
+
+---
+
+## 💰 7. Thanh Toán & Học Phí (Payment)
+
+### A. Màn Hình Chính
+![Giao diện Thanh toán](./docs/screenshots/payments.png)
+
+### B. Lập Phiếu Thu (Payment Side Panel)
+![Side Panel Thanh toán](./docs/screenshots/sidepanel_payment.png)
+-   **Amount**: Số tiền đóng (VNĐ).
+-   **Payment Method**: Tiền mặt, Chuyển khoản, Thẻ.
+
+---
+
+## 📈 8. Báo Cáo & Thống Kê (Reports)
+![Giao diện Báo cáo](./docs/screenshots/reports.png)
+Dashboard tổng quan về Doanh thu, Tăng trưởng học viên và Thống kê lớp học.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
 ### 🏗️ Design Patterns Applied
-- **Builder Pattern**: Used for robust entity construction and cleaner code.
-- **Strategy Pattern**: Implemented for dynamic UI rendering of statuses and roles.
-- **DAO Pattern**: Centralized database logic using Hibernate's `Session` API for thread-safe operations.
+- **Builder Pattern**: Entity construction.
+- **Strategy Pattern**: Dynamic UI rendering (Status badges).
+- **DAO Pattern**: Hibernate-based data access.
 
 ### 💻 Infrastructure
 - **Core**: Java 21 (LTS)
-- **UI Framework**: Java Swing + MigLayout + FlatLaf (Custom Material/macOS styles)
-- **Persistance**: Hibernate 6.4 (Jakarta Persistence)
-- **Database**: MySQL 8.0
-- **Build Tool**: Apache Maven
+- **UI Framework**: Java Swing + MigLayout + FlatLaf
+- **Database**: MySQL 8.0 + Hibernate 6.4
 
 ---
 
-## 🏁 Getting Started
+## 🏁 Getting Started (Cài đặt)
 
-### 1️⃣ Prerequisites
-- **Java JDK 21+**
-- **Maven 3.x**
-- **MySQL 8.x**
+### 1️⃣ Database Setup
+Import `database.sql` và cập nhật thông tin tại `src/main/resources/hibernate.cfg.xml`.
 
-### 2️⃣ Database Setup
-Import the provided `database.sql` to initialize your schema, or let Hibernate auto-generate it.
-
-```sql
-CREATE DATABASE language_centerdb;
-```
-
-Update your credentials in `src/main/resources/hibernate.cfg.xml`:
-```xml
-<property name="hibernate.connection.username">USER</property>
-<property name="hibernate.connection.password">PASSWORD</property>
-```
-
-### 3️⃣ Build & Launch
+### 2️⃣ Build & Launch
 ```bash
 mvn clean compile
 mvn exec:java -Dexec.mainClass="com.languagecenter.Main"
 ```
-
----
-
-## 📈 Project Status
-For detailed implementation progress, see [TienDoThucHien.md](./TienDoThucHien.md).
 
 ---
 
