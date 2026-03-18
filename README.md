@@ -100,9 +100,11 @@ Hệ thống hỗ trợ 3 vai trò mặc định (Mật khẩu: `123456`):
 ---
 
 ## 📅 6. Quản Lý Lịch Học (Schedule)
-![Side Panel Xếp lịch](./docs/screenshots/sidepanel_schedule.png) | ![Giao diện Lịch học](./docs/screenshots/schedules.png)
+![Giao diện Lịch học](./docs/screenshots/schedules.png)
+
+![Side Panel Sửa lịch](./docs/screenshots/sidepanel_schedule_single.png) | ![Side Panel Xếp lịch hàng loạt](./docs/screenshots/sidepanel_schedule_batch.png)
 --- | ---
-**Smart Scheduling**: Xếp lịch hàng loạt (`Batch Generate`) tự động. | **Main Board**: Tổng quan lịch học toàn trung tâm.
+**Single Session**: Chỉnh sửa hoặc thêm mới một buổi học lẻ (đổi phòng, đổi giờ). | **Batch Generate**: Tự động sinh lịch học cho toàn bộ khóa dựa trên mẫu lịch và ngày bắt đầu/kết thúc.
 
 ---
 
